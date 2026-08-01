@@ -18,11 +18,9 @@ type Slug struct {
 	position         *lib.Vector2D
 	length           int
 	sprite           *ebiten.Image
-	jumpBy           float64
+	jumpBy           int
 	currentDirection lib.Vector2D
 }
-
-var startSpeed float64 = 1
 
 func (s *Slug) Update() error {
 	switch {
@@ -41,7 +39,7 @@ func (s *Slug) Update() error {
 
 func (s *Slug) Move() {
 	moveBy := lib.Vector2D{X: s.currentDirection.X, Y: s.currentDirection.Y}
-	moveBy.Multiply(startSpeed * s.jumpBy)
+	moveBy.Multiply(float64(s.jumpBy))
 	s.position.Add(&moveBy)
 }
 
@@ -58,7 +56,7 @@ func (s *Slug) Draw(screen *ebiten.Image) {
 	screen.DrawImage(s.sprite, op)
 }
 
-func NewSlug(jumpBy float64) *Slug {
+func NewSlug(jumpBy int) *Slug {
 	sprite := assets.SlugSprite
 	bounds := sprite.Bounds()
 	halfW := float64(bounds.Dx()) / 2

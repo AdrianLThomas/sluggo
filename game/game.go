@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-	"sluggo/lib"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -13,58 +11,27 @@ const (
 	ScreenWidth   = 800
 	ScreenHeight  = 600
 	MoveFrequency = time.Millisecond * 200
-	JumpBy        = 30.0
+	JumpBy        = 1
 	Columns       = 9
 	Rows          = 9
 )
 
 type game struct {
-	arena     *Arena
-	slug      *Slug
-	moveTimer *lib.Timer
+	arena *Arena
 }
 
 func (g game) Update() error {
-	if err := g.slug.Update(); err != nil {
+	if err := g.arena.Update(); err != nil {
 		return err
 	}
 
-	g.moveTimer.Update()
-
-	if g.moveTimer.IsReady() {
-		g.moveTimer.Reset()
-
-		g.slug.Move()
-	}
-
-	g.checkBounds()
-
 	return nil
-}
-
-func (g game) checkBounds() {
-	slugPosition := g.slug.Position()
-	switch {
-	case slugPosition.X < 0:
-		g.slug.SetPosition(&lib.Vector2D{X: ScreenWidth, Y: slugPosition.Y})
-	case slugPosition.X > ScreenWidth:
-		g.slug.SetPosition(&lib.Vector2D{X: 0, Y: slugPosition.Y})
-	case slugPosition.Y < 0:
-		g.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: ScreenHeight})
-	case slugPosition.Y > ScreenHeight:
-		g.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: 0})
-	}
 }
 
 func (g game) Draw(screen *ebiten.Image) {
 	g.arena.Draw(screen)
 
 	ebitenutil.DebugPrint(screen, "Sluggo!")
-	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("X: %f,Y: %f", g.slug.Position().X, g.slug.Position().Y),
-		0, ScreenHeight-20)
-
-	g.slug.Draw(screen)
 }
 
 func (g game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -73,8 +40,6 @@ func (g game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight
 
 func NewGame() ebiten.Game {
 	return &game{
-		arena:     NewArena(Columns, Rows),
-		slug:      NewSlug(JumpBy),
-		moveTimer: lib.NewTimer(MoveFrequency),
+		arena: NewArena(Columns, Rows),
 	}
 }

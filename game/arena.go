@@ -1,18 +1,37 @@
 package game
 
 import (
+	"fmt"
 	"sluggo/assets"
+	"sluggo/lib"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type Arena struct {
 	background *ebiten.Image
 	columns    int
 	rows       int
+	slug       *Slug
+	moveTimer  *lib.Timer
 }
 
 func (a Arena) Update() error {
+	if err := a.slug.Update(); err != nil {
+		return err
+	}
+
+	a.moveTimer.Update()
+
+	if a.moveTimer.IsReady() {
+		a.moveTimer.Reset()
+
+		a.slug.Move()
+	}
+
+	a.checkBounds()
+
 	return nil
 }
 
@@ -35,6 +54,12 @@ func (a Arena) Draw(screen *ebiten.Image) {
 			screen.DrawImage(a.background, op)
 		}
 	}
+
+	a.slug.Draw(screen)
+
+	ebitenutil.DebugPrintAt(screen,
+		fmt.Sprintf("X: %f,Y: %f", a.slug.Position().X, a.slug.Position().Y),
+		0, ScreenHeight-20)
 }
 
 func NewArena(columns int, rows int) *Arena {
@@ -42,5 +67,21 @@ func NewArena(columns int, rows int) *Arena {
 		columns:    columns,
 		rows:       rows,
 		background: assets.BackgroundSprite,
+		slug:       NewSlug(JumpBy),
+		moveTimer:  lib.NewTimer(MoveFrequency),
+	}
+}
+
+func (a Arena) checkBounds() {
+	slugPosition := a.slug.Position()
+	switch {
+	case slugPosition.X < 0:
+		a.slug.SetPosition(&lib.Vector2D{X: ScreenWidth, Y: slugPosition.Y})
+	case slugPosition.X > ScreenWidth:
+		a.slug.SetPosition(&lib.Vector2D{X: 0, Y: slugPosition.Y})
+	case slugPosition.Y < 0:
+		a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: ScreenHeight})
+	case slugPosition.Y > ScreenHeight:
+		a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: 0})
 	}
 }
