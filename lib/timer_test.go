@@ -3,27 +3,27 @@ package lib
 import (
 	"testing"
 	"time"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const tps = 60
+
 func TestNewTimer(t *testing.T) {
-	tmr := NewTimer(time.Second)
-	expected := int(time.Second.Milliseconds()) * ebiten.TPS() / 1000
+	tmr := NewTimer(time.Second, tps)
+	expected := int(time.Second.Milliseconds()) * tps / 1000
 	if tmr.targetTicks != expected {
 		t.Errorf("expected targetTicks %d, got %d", expected, tmr.targetTicks)
 	}
 }
 
 func TestTimerNotReadyInitially(t *testing.T) {
-	tmr := NewTimer(time.Second)
+	tmr := NewTimer(time.Second, tps)
 	if tmr.IsReady() {
 		t.Error("expected timer not to be ready initially")
 	}
 }
 
 func TestTimerBecomesReady(t *testing.T) {
-	tmr := NewTimer(time.Second)
+	tmr := NewTimer(time.Second, tps)
 	for range tmr.targetTicks {
 		tmr.Update()
 	}
@@ -33,7 +33,7 @@ func TestTimerBecomesReady(t *testing.T) {
 }
 
 func TestTimerNotReadyBeforeTarget(t *testing.T) {
-	tmr := NewTimer(time.Second)
+	tmr := NewTimer(time.Second, tps)
 	for range tmr.targetTicks - 1 {
 		tmr.Update()
 	}
@@ -43,7 +43,7 @@ func TestTimerNotReadyBeforeTarget(t *testing.T) {
 }
 
 func TestTimerUpdateStopsAtTarget(t *testing.T) {
-	tmr := NewTimer(time.Second)
+	tmr := NewTimer(time.Second, tps)
 	for range tmr.targetTicks + 100 {
 		tmr.Update()
 	}
@@ -53,7 +53,7 @@ func TestTimerUpdateStopsAtTarget(t *testing.T) {
 }
 
 func TestTimerReset(t *testing.T) {
-	tmr := NewTimer(time.Second)
+	tmr := NewTimer(time.Second, tps)
 	for range tmr.targetTicks {
 		tmr.Update()
 	}
@@ -67,7 +67,7 @@ func TestTimerReset(t *testing.T) {
 }
 
 func TestTimerResetAllowsReuse(t *testing.T) {
-	tmr := NewTimer(time.Second)
+	tmr := NewTimer(time.Second, tps)
 	for range tmr.targetTicks {
 		tmr.Update()
 	}
@@ -81,15 +81,15 @@ func TestTimerResetAllowsReuse(t *testing.T) {
 }
 
 func TestTimerZeroDuration(t *testing.T) {
-	tmr := NewTimer(0)
+	tmr := NewTimer(0, tps)
 	if !tmr.IsReady() {
 		t.Error("expected zero-duration timer to be ready immediately")
 	}
 }
 
 func TestTimerMinimumDuration(t *testing.T) {
-	d := time.Duration(1000/ebiten.TPS() + 1) * time.Millisecond
-	tmr := NewTimer(d)
+	d := time.Duration(1000/tps+1) * time.Millisecond
+	tmr := NewTimer(d, tps)
 	if tmr.targetTicks < 1 {
 		t.Error("expected at least 1 tick for duration >= ceil(1000/TPS)")
 	}

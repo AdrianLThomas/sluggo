@@ -1,20 +1,16 @@
 package lib
 
-import (
-	"time"
-
-	"github.com/hajimehoshi/ebiten/v2"
-)
+import "time"
 
 type Timer struct {
 	currentTicks int
 	targetTicks  int
 }
 
-func NewTimer(d time.Duration) *Timer {
+func NewTimer(d time.Duration, tps int) *Timer {
 	return &Timer{
 		currentTicks: 0,
-		targetTicks:  int(d.Milliseconds()) * ebiten.TPS() / 1000,
+		targetTicks:  int(d.Milliseconds()) * tps / 1000,
 	}
 }
 
