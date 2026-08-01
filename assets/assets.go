@@ -16,6 +16,7 @@ var SlugHeadSprite = mustLoadImage("slug_head.png")
 var SlugBodySprite = mustLoadImage("slug_body.png")
 var SlugTailSprite = mustLoadImage("slug_tail.png")
 var FoodSprite = mustLoadImage("food.png")
+var RockSprite = mustLoadImage("rock.png")
 
 func mustLoadImage(name string) *ebiten.Image {
 	f, err := assets.Open(name)

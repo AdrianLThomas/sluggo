@@ -14,6 +14,7 @@ type Arena struct {
 	bgImage    *ebiten.Image
 	bgTileSize int
 	food       []*Food
+	rock       []*Rock
 }
 
 func (a *Arena) Update() error {
@@ -33,7 +34,17 @@ func (a *Arena) Update() error {
 			a.slug.Grow()
 			food.Reset(a.randomGridPosition())
 		}
+	}
 
+	for _, rock := range a.rock {
+		if err := rock.Update(); err != nil {
+			return err
+		}
+
+		isCollision := a.slug.Position() == rock.position
+		if isCollision {
+			// TODO
+		}
 	}
 
 	return nil
@@ -50,6 +61,9 @@ func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY in
 
 	for _, food := range a.food {
 		food.Draw(screen, tileSize, offsetX, offsetY)
+	}
+	for _, rock := range a.rock {
+		rock.Draw(screen, tileSize, offsetX, offsetY)
 	}
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
 }
@@ -79,6 +93,11 @@ func (a *Arena) rebuildBackground(tileSize int) {
 }
 
 func NewArena(columns int, rows int) *Arena {
+	foodPos := RandomGridPosition(columns, rows)
+	rockPos := RandomGridPosition(columns, rows)
+	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
+		rockPos = RandomGridPosition(columns, rows)
+	}
 	return &Arena{
 		columns: columns,
 		rows:    rows,
@@ -88,7 +107,10 @@ func NewArena(columns int, rows int) *Arena {
 		},
 			SlugLength),
 		food: []*Food{
-			NewFood(RandomGridPosition(columns, rows)),
+			NewFood(foodPos),
+		},
+		rock: []*Rock{
+			NewRock(rockPos),
 		},
 	}
 }

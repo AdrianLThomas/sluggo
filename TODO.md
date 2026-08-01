@@ -1,7 +1,4 @@
 # Game
-- Grow snake 
-  - when conflict with food
-- Add food
 - Add obstacles?
 
 # Code health
