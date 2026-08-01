@@ -1,18 +1,15 @@
 package game
 
 import (
-	"fmt"
 	"sluggo/assets"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type Arena struct {
-	background *ebiten.Image
-	columns    int
-	rows       int
-	slug       *Slug
+	columns int
+	rows    int
+	slug    *Slug
 }
 
 func (a *Arena) Update() error {
@@ -20,61 +17,36 @@ func (a *Arena) Update() error {
 		return err
 	}
 
-	a.checkBounds()
+	a.slug.Wrap(a.columns, a.rows)
 
 	return nil
 }
 
-func (a *Arena) Draw(screen *ebiten.Image) {
-	width, height := screen.Bounds().Dx(), screen.Bounds().Dy()
-	tileSize := min(width/a.columns, height/a.rows)
-	offsetX := (width - (a.columns * tileSize)) / 2
-	offsetY := (height - (a.rows * tileSize)) / 2
+func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
 	for y := range a.rows {
 		for x := range a.columns {
 			op := &ebiten.DrawImageOptions{}
-			s := float64(tileSize) / float64(a.background.Bounds().Dx())
+			s := float64(tileSize) / float64(assets.BackgroundSprite.Bounds().Dx())
 			op.GeoM.Scale(s, s)
 			op.GeoM.Translate(
 				float64(offsetX+x*tileSize),
 				float64(offsetY+y*tileSize),
 			)
-			screen.DrawImage(a.background, op)
+			screen.DrawImage(assets.BackgroundSprite, op)
 		}
 	}
 
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
-
-	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("X: %v,Y: %v", a.slug.Position().X, a.slug.Position().Y),
-		0, ScreenHeight-20)
 }
 
 func NewArena(columns int, rows int) *Arena {
 	return &Arena{
-		columns:    columns,
-		rows:       rows,
-		background: assets.BackgroundSprite,
+		columns: columns,
+		rows:    rows,
 		slug: NewSlug(JumpBy, Vector2{
 			X: columns - 1,
 			Y: rows / 2,
 		},
-		SlugLength),
-	}
-}
-
-func (a *Arena) checkBounds() {
-	slugPosition := a.slug.Position()
-
-	// overflow mode
-	switch {
-	case slugPosition.X < 0:
-		a.slug.Teleport(Vector2{X: a.columns - 1, Y: slugPosition.Y})
-	case slugPosition.X > a.columns-1:
-		a.slug.Teleport(Vector2{X: 0, Y: slugPosition.Y})
-	case slugPosition.Y < 0:
-		a.slug.Teleport(Vector2{X: slugPosition.X, Y: a.rows - 1})
-	case slugPosition.Y > a.rows-1:
-		a.slug.Teleport(Vector2{X: slugPosition.X, Y: 0})
+			SlugLength),
 	}
 }

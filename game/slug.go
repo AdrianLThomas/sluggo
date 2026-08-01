@@ -34,7 +34,6 @@ func (s *Slug) Update() error {
 
 	if s.moveTimer.IsReady() {
 		s.moveTimer.Reset()
-
 		s.move()
 	}
 
@@ -56,31 +55,49 @@ func (s *Slug) checkKeyPresses() {
 
 func (s *Slug) move() {
 	s.currentDirection = s.nextDirection
+	delta := s.currentDirection.Multiply(s.jumpBy)
+	s.setPosition(s.positions[0].Add(delta))
+}
 
-	moveBy := Vector2{X: s.currentDirection.X, Y: s.currentDirection.Y}
-	moveBy = moveBy.Multiply(s.jumpBy)
+func (s *Slug) setPosition(position Vector2) {
+	for i := len(s.positions) - 1; i > 0; i-- {
+		s.positions[i] = s.positions[i-1]
+	}
+	s.positions[0] = position
+}
 
-	newPos := s.positions[0]
-	newPos = newPos.Add(moveBy)
-	s.setPosition(newPos)
+func (s *Slug) Wrap(columns, rows int) {
+	pos := s.positions[0]
+	switch {
+	case pos.X < 0:
+		s.positions[0] = Vector2{X: columns - 1, Y: pos.Y}
+	case pos.X >= columns:
+		s.positions[0] = Vector2{X: 0, Y: pos.Y}
+	case pos.Y < 0:
+		s.positions[0] = Vector2{X: pos.X, Y: rows - 1}
+	case pos.Y >= rows:
+		s.positions[0] = Vector2{X: pos.X, Y: 0}
+	}
+}
+
+func (s *Slug) Position() Vector2 {
+	return s.positions[0]
 }
 
 func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
 	bounds := s.headSprite.Bounds()
 
-	// head
 	opHead := &ebiten.DrawImageOptions{}
-	center(opHead, bounds)
+	s.center(opHead, bounds)
 	s.rotate(opHead)
-	scale(tileSize, bounds, opHead)
+	s.scale(tileSize, bounds, opHead)
 	s.translate(offsetX, tileSize, offsetY, opHead, s.positions[0])
 	screen.DrawImage(s.headSprite, opHead)
 
-	// body
 	for _, body := range s.positions[1:] {
 		opBody := &ebiten.DrawImageOptions{}
-		center(opBody, bounds)
-		scale(tileSize, bounds, opBody)
+		s.center(opBody, bounds)
+		s.scale(tileSize, bounds, opBody)
 		s.translate(offsetX, tileSize, offsetY, opBody, body)
 
 		isTail := body == s.positions[len(s.positions)-1]
@@ -92,15 +109,14 @@ func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 	}
 }
 
-func scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageOptions) {
-	scale := float64(tileSize) / float64(bounds.Dx())
-	op.GeoM.Scale(scale, scale)
+func (s *Slug) scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageOptions) {
+	sc := float64(tileSize) / float64(bounds.Dx())
+	op.GeoM.Scale(sc, sc)
 }
 
 func (s *Slug) translate(offsetX int, tileSize int, offsetY int, op *ebiten.DrawImageOptions, position Vector2) {
 	x := offsetX + position.X*tileSize
 	y := offsetY + position.Y*tileSize
-
 	op.GeoM.Translate(
 		float64(x+tileSize/2),
 		float64(y+tileSize/2),
@@ -120,8 +136,7 @@ func (s *Slug) rotate(op *ebiten.DrawImageOptions) {
 	}
 }
 
-// center rotates around the center of the sprite
-func center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
+func (s *Slug) center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
 	op.GeoM.Translate(
 		-float64(bounds.Dx())/2,
 		-float64(bounds.Dy())/2,
@@ -129,41 +144,18 @@ func center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
 }
 
 func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
-	headSprite := assets.SlugHeadSprite
-	bodySprite := assets.SlugBodySprite
-	tailSprite := assets.SlugTailSprite
-
 	positions := make([]Vector2, length)
 	for i := range positions {
 		positions[i] = Vector2{startPosition.X + i, startPosition.Y}
 	}
 	return &Slug{
 		positions:        positions,
-		headSprite:       headSprite,
-		bodySprite:       bodySprite,
-		tailSprite:       tailSprite,
+		headSprite:       assets.SlugHeadSprite,
+		bodySprite:       assets.SlugBodySprite,
+		tailSprite:       assets.SlugTailSprite,
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
 		nextDirection:    DirectionLeft,
-		moveTimer:        lib.NewTimer(MoveFrequency),
+		moveTimer:        lib.NewTimer(MoveFrequency, ebiten.TPS()),
 	}
-}
-
-// Position returns the position of the head
-func (s *Slug) Position() Vector2 {
-	return s.positions[0]
-}
-
-func (s *Slug) setPosition(position Vector2) {
-	// update body to each prior element
-	for i := len(s.positions) - 1; i > 0; i-- {
-		s.positions[i] = s.positions[i-1]
-	}
-
-	// set head
-	s.positions[0] = position
-}
-
-func (s *Slug) Teleport(position Vector2) {
-	s.positions[0] = position
 }

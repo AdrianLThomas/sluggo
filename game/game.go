@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"sluggo/lib"
 	"time"
 
@@ -25,16 +26,20 @@ type game struct {
 }
 
 func (g *game) Update() error {
-	if err := g.arena.Update(); err != nil {
-		return err
-	}
-
-	return nil
+	return g.arena.Update()
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
-	g.arena.Draw(screen)
+	width, height := screen.Bounds().Dx(), screen.Bounds().Dy()
+	tileSize := min(width/g.arena.columns, height/g.arena.rows)
+	offsetX := (width - (g.arena.columns * tileSize)) / 2
+	offsetY := (height - (g.arena.rows * tileSize)) / 2
 
+	g.arena.Draw(screen, tileSize, offsetX, offsetY)
+
+	ebitenutil.DebugPrintAt(screen,
+		fmt.Sprintf("X: %v,Y: %v", g.arena.slug.Position().X, g.arena.slug.Position().Y),
+		0, ScreenHeight-20)
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 }
 
