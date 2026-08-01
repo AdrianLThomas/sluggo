@@ -3,7 +3,6 @@ package game
 import (
 	"fmt"
 	"sluggo/assets"
-	"sluggo/lib"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -14,20 +13,11 @@ type Arena struct {
 	columns    int
 	rows       int
 	slug       *Slug
-	moveTimer  *lib.Timer
 }
 
 func (a Arena) Update() error {
 	if err := a.slug.Update(); err != nil {
 		return err
-	}
-
-	a.moveTimer.Update()
-
-	if a.moveTimer.IsReady() {
-		a.moveTimer.Reset()
-
-		a.slug.Move()
 	}
 
 	a.checkBounds()
@@ -71,7 +61,6 @@ func NewArena(columns int, rows int) *Arena {
 			X: Columns - 1,
 			Y: Rows / 2,
 		}),
-		moveTimer: lib.NewTimer(MoveFrequency),
 	}
 }
 

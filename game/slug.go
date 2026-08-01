@@ -4,6 +4,7 @@ import (
 	"image"
 	"math"
 	"sluggo/assets"
+	"sluggo/lib"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -21,9 +22,24 @@ type Slug struct {
 	jumpBy           int
 	currentDirection Vector2
 	nextDirection    Vector2
+	moveTimer        *lib.Timer
 }
 
 func (s *Slug) Update() error {
+	s.checkKeyPresses()
+
+	s.moveTimer.Update()
+
+	if s.moveTimer.IsReady() {
+		s.moveTimer.Reset()
+
+		s.move()
+	}
+
+	return nil
+}
+
+func (s *Slug) checkKeyPresses() {
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyLeft) && s.currentDirection != DirectionRight:
 		s.nextDirection = DirectionLeft
@@ -34,11 +50,9 @@ func (s *Slug) Update() error {
 	case ebiten.IsKeyPressed(ebiten.KeyDown) && s.currentDirection != DirectionUp:
 		s.nextDirection = DirectionDown
 	}
-
-	return nil
 }
 
-func (s *Slug) Move() {
+func (s *Slug) move() {
 	s.currentDirection = s.nextDirection
 
 	moveBy := Vector2{X: s.currentDirection.X, Y: s.currentDirection.Y}
@@ -119,6 +133,7 @@ func NewSlug(jumpBy int, startPosition Vector2) *Slug {
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
 		nextDirection:    DirectionLeft,
+		moveTimer:        lib.NewTimer(MoveFrequency),
 	}
 }
 
