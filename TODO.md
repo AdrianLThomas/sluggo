@@ -1,6 +1,3 @@
-# To fix
-- body renders outside of arena
-
 # Game
 - Grow snake 
   - when conflict with food
