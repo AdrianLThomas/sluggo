@@ -8,12 +8,10 @@ type Vector2[T Number] struct {
 	X, Y T
 }
 
-func (v *Vector2[T]) Add(other Vector2[T]) {
-	v.X += other.X
-	v.Y += other.Y
+func (v Vector2[T]) Add(other Vector2[T]) Vector2[T] {
+	return Vector2[T]{X: v.X + other.X, Y: v.Y + other.Y}
 }
 
-func (v *Vector2[T]) Multiply(amount T) {
-	v.X *= amount
-	v.Y *= amount
+func (v Vector2[T]) Multiply(amount T) Vector2[T] {
+	return Vector2[T]{X: v.X * amount, Y: v.Y * amount}
 }

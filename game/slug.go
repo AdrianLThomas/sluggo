@@ -58,10 +58,10 @@ func (s *Slug) move() {
 	s.currentDirection = s.nextDirection
 
 	moveBy := Vector2{X: s.currentDirection.X, Y: s.currentDirection.Y}
-	moveBy.Multiply(s.jumpBy)
+	moveBy = moveBy.Multiply(s.jumpBy)
 
 	newPos := s.positions[0]
-	newPos.Add(moveBy)
+	newPos = newPos.Add(moveBy)
 	s.setPosition(newPos)
 }
 
