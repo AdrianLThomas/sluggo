@@ -1,15 +1,19 @@
 package lib
 
-type Vector2D struct {
-	X, Y float64
+type Number interface {
+	~int | ~float64
 }
 
-func (v *Vector2D) Add(other *Vector2D) {
+type Vector2[T Number] struct {
+	X, Y T
+}
+
+func (v *Vector2[T]) Add(other Vector2[T]) {
 	v.X += other.X
 	v.Y += other.Y
 }
 
-func (v *Vector2D) Multiply(amount float64) {
+func (v *Vector2[T]) Multiply(amount T) {
 	v.X *= amount
 	v.Y *= amount
 }

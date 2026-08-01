@@ -1,6 +1,3 @@
-# To fix
-- Refactor Vector2D to Vector2I? - integers used and requires conversion in a lot of places.
-
 # Game
 - Add food
 - Grow snake when conflict with food
@@ -13,3 +10,4 @@ Grid background (debug?)
 - Add CI to build
 - Add linter
 - Add some tests
+- Benchmark vector manipulation performance

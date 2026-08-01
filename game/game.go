@@ -1,6 +1,7 @@
 package game
 
 import (
+	"sluggo/lib"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -15,6 +16,8 @@ const (
 	Columns       = 13
 	Rows          = 5
 )
+
+type Vector2 = lib.Vector2[int]
 
 type game struct {
 	arena *Arena

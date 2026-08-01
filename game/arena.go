@@ -67,7 +67,7 @@ func NewArena(columns int, rows int) *Arena {
 		columns:    columns,
 		rows:       rows,
 		background: assets.BackgroundSprite,
-		slug: NewSlug(JumpBy, &lib.Vector2D{
+		slug: NewSlug(JumpBy, Vector2{
 			X: Columns - 1,
 			Y: Rows / 2,
 		}),
@@ -81,12 +81,12 @@ func (a Arena) checkBounds() {
 	// overflow mode
 	switch {
 	case slugPosition.X < 0:
-		a.slug.SetPosition(&lib.Vector2D{X: float64(a.columns - 1), Y: slugPosition.Y})
-	case slugPosition.X > float64(a.columns-1):
-		a.slug.SetPosition(&lib.Vector2D{X: 0, Y: slugPosition.Y})
+		a.slug.SetPosition(Vector2{X: a.columns - 1, Y: slugPosition.Y})
+	case slugPosition.X > a.columns-1:
+		a.slug.SetPosition(Vector2{X: 0, Y: slugPosition.Y})
 	case slugPosition.Y < 0:
-		a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: float64(a.rows - 1)})
-	case slugPosition.Y > float64(a.rows-1):
-		a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: 0})
+		a.slug.SetPosition(Vector2{X: slugPosition.X, Y: a.rows - 1})
+	case slugPosition.Y > a.rows-1:
+		a.slug.SetPosition(Vector2{X: slugPosition.X, Y: 0})
 	}
 }

@@ -2,45 +2,44 @@ package game
 
 import (
 	"sluggo/assets"
-	"sluggo/lib"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var (
-	DirectionLeft  = lib.Vector2D{X: -1}
-	DirectionUp    = lib.Vector2D{Y: -1}
-	DirectionRight = lib.Vector2D{X: +1}
-	DirectionDown  = lib.Vector2D{Y: +1}
+	DirectionLeft  = Vector2{X: -1}
+	DirectionUp    = Vector2{Y: -1}
+	DirectionRight = Vector2{X: +1}
+	DirectionDown  = Vector2{Y: +1}
 )
 
 type Slug struct {
-	position         *lib.Vector2D
+	position         Vector2
 	length           int
 	sprite           *ebiten.Image
 	jumpBy           int
-	currentDirection *lib.Vector2D
+	currentDirection Vector2
 }
 
 func (s *Slug) Update() error {
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyLeft):
-		s.currentDirection = &DirectionLeft
+		s.currentDirection = DirectionLeft
 	case ebiten.IsKeyPressed(ebiten.KeyUp):
-		s.currentDirection = &DirectionUp
+		s.currentDirection = DirectionUp
 	case ebiten.IsKeyPressed(ebiten.KeyRight):
-		s.currentDirection = &DirectionRight
+		s.currentDirection = DirectionRight
 	case ebiten.IsKeyPressed(ebiten.KeyDown):
-		s.currentDirection = &DirectionDown
+		s.currentDirection = DirectionDown
 	}
 
 	return nil
 }
 
 func (s *Slug) Move() {
-	moveBy := lib.Vector2D{X: s.currentDirection.X, Y: s.currentDirection.Y}
-	moveBy.Multiply(float64(s.jumpBy))
-	s.position.Add(&moveBy)
+	moveBy := Vector2{X: s.currentDirection.X, Y: s.currentDirection.Y}
+	moveBy.Multiply(s.jumpBy)
+	s.position.Add(moveBy)
 }
 
 func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
@@ -50,16 +49,16 @@ func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(scale, scale)
-	
-	x := float64(offsetX) + s.position.X*float64(tileSize)
-	y := float64(offsetY) + s.position.Y*float64(tileSize)
 
-	op.GeoM.Translate(x, y)
+	x := offsetX + s.position.X*tileSize
+	y := offsetY + s.position.Y*tileSize
+
+	op.GeoM.Translate(float64(x), float64(y))
 
 	screen.DrawImage(s.sprite, op)
 }
 
-func NewSlug(jumpBy int, startPosition *lib.Vector2D) *Slug {
+func NewSlug(jumpBy int, startPosition Vector2) *Slug {
 	sprite := assets.SlugSprite
 
 	return &Slug{
@@ -67,14 +66,14 @@ func NewSlug(jumpBy int, startPosition *lib.Vector2D) *Slug {
 		position:         startPosition,
 		sprite:           sprite,
 		jumpBy:           jumpBy,
-		currentDirection: &DirectionLeft,
+		currentDirection: DirectionLeft,
 	}
 }
 
-func (s *Slug) Position() *lib.Vector2D {
+func (s *Slug) Position() Vector2 {
 	return s.position
 }
 
-func (s *Slug) SetPosition(position *lib.Vector2D) {
+func (s *Slug) SetPosition(position Vector2) {
 	s.position = position
 }
