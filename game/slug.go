@@ -19,19 +19,19 @@ type Slug struct {
 	length           int
 	sprite           *ebiten.Image
 	jumpBy           int
-	currentDirection lib.Vector2D
+	currentDirection *lib.Vector2D
 }
 
 func (s *Slug) Update() error {
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyLeft):
-		s.currentDirection = DirectionLeft
+		s.currentDirection = &DirectionLeft
 	case ebiten.IsKeyPressed(ebiten.KeyUp):
-		s.currentDirection = DirectionUp
+		s.currentDirection = &DirectionUp
 	case ebiten.IsKeyPressed(ebiten.KeyRight):
-		s.currentDirection = DirectionRight
+		s.currentDirection = &DirectionRight
 	case ebiten.IsKeyPressed(ebiten.KeyDown):
-		s.currentDirection = DirectionDown
+		s.currentDirection = &DirectionDown
 	}
 
 	return nil
@@ -51,28 +51,23 @@ func (s *Slug) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 
 	op.GeoM.Translate(-halfW, -halfH)
-	op.GeoM.Translate(s.position.X, s.position.Y)
+	op.GeoM.Translate(
+		s.position.X*float64(bounds.Dx()),
+		s.position.Y*float64(bounds.Dy()),
+	)
 
 	screen.DrawImage(s.sprite, op)
 }
 
-func NewSlug(jumpBy int) *Slug {
+func NewSlug(jumpBy int, startPosition *lib.Vector2D) *Slug {
 	sprite := assets.SlugSprite
-	bounds := sprite.Bounds()
-	halfW := float64(bounds.Dx()) / 2
-	halfH := float64(bounds.Dy()) / 2
-
-	rightOfScreen := lib.Vector2D{
-		X: ScreenWidth - halfW,
-		Y: ScreenHeight/2 + halfH,
-	}
 
 	return &Slug{
 		length:           1,
-		position:         &rightOfScreen,
+		position:         startPosition,
 		sprite:           sprite,
 		jumpBy:           jumpBy,
-		currentDirection: DirectionLeft,
+		currentDirection: &DirectionLeft,
 	}
 }
 

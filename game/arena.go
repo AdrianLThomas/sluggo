@@ -67,21 +67,24 @@ func NewArena(columns int, rows int) *Arena {
 		columns:    columns,
 		rows:       rows,
 		background: assets.BackgroundSprite,
-		slug:       NewSlug(JumpBy),
-		moveTimer:  lib.NewTimer(MoveFrequency),
+		slug: NewSlug(JumpBy, &lib.Vector2D{
+			X: Columns,
+			Y: Rows / 2,
+		}),
+		moveTimer: lib.NewTimer(MoveFrequency),
 	}
 }
 
 func (a Arena) checkBounds() {
-	slugPosition := a.slug.Position()
-	switch {
-	case slugPosition.X < 0:
-		a.slug.SetPosition(&lib.Vector2D{X: ScreenWidth, Y: slugPosition.Y})
-	case slugPosition.X > ScreenWidth:
-		a.slug.SetPosition(&lib.Vector2D{X: 0, Y: slugPosition.Y})
-	case slugPosition.Y < 0:
-		a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: ScreenHeight})
-	case slugPosition.Y > ScreenHeight:
-		a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: 0})
-	}
+	//slugPosition := a.slug.Position()
+	//switch {
+	//case slugPosition.X < 0:
+	//	a.slug.SetPosition(&lib.Vector2D{X: ScreenWidth, Y: slugPosition.Y})
+	//case slugPosition.X > ScreenWidth:
+	//	a.slug.SetPosition(&lib.Vector2D{X: 0, Y: slugPosition.Y})
+	//case slugPosition.Y < 0:
+	//	a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: ScreenHeight})
+	//case slugPosition.Y > ScreenHeight:
+	//	a.slug.SetPosition(&lib.Vector2D{X: slugPosition.X, Y: 0})
+	//}
 }
