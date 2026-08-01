@@ -1,6 +1,5 @@
 # To fix
-- Scale slug
-- Reapply boundary checks
+- Refactor Vector2D to Vector2I? - integers used and requires conversion in a lot of places.
 
 # Game
 - Add food
