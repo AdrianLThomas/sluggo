@@ -21,24 +21,26 @@ type Slug struct {
 	sprite           *ebiten.Image
 	jumpBy           int
 	currentDirection Vector2
+	nextDirection    Vector2
 }
 
 func (s *Slug) Update() error {
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyLeft) && s.currentDirection != DirectionRight:
-		s.currentDirection = DirectionLeft
+		s.nextDirection = DirectionLeft
 	case ebiten.IsKeyPressed(ebiten.KeyUp) && s.currentDirection != DirectionDown:
-		s.currentDirection = DirectionUp
+		s.nextDirection = DirectionUp
 	case ebiten.IsKeyPressed(ebiten.KeyRight) && s.currentDirection != DirectionLeft:
-		s.currentDirection = DirectionRight
+		s.nextDirection = DirectionRight
 	case ebiten.IsKeyPressed(ebiten.KeyDown) && s.currentDirection != DirectionUp:
-		s.currentDirection = DirectionDown
+		s.nextDirection = DirectionDown
 	}
 
 	return nil
 }
 
 func (s *Slug) Move() {
+	s.currentDirection = s.nextDirection
 	moveBy := Vector2{X: s.currentDirection.X, Y: s.currentDirection.Y}
 	moveBy.Multiply(s.jumpBy)
 	s.position.Add(moveBy)
@@ -99,6 +101,7 @@ func NewSlug(jumpBy int, startPosition Vector2) *Slug {
 		sprite:           sprite,
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
+		nextDirection:    DirectionLeft,
 	}
 }
 
