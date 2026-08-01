@@ -70,17 +70,17 @@ func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 
 	// head
 	opHead := &ebiten.DrawImageOptions{}
-	s.center(opHead, bounds)
+	center(opHead, bounds)
 	s.rotate(opHead)
-	s.scale(tileSize, bounds, opHead)
+	scale(tileSize, bounds, opHead)
 	s.translate(offsetX, tileSize, offsetY, opHead, s.positions[0])
 	screen.DrawImage(s.headSprite, opHead)
 
 	// body
 	for _, body := range s.positions[1:] {
 		opBody := &ebiten.DrawImageOptions{}
-		s.center(opBody, bounds)
-		s.scale(tileSize, bounds, opBody)
+		center(opBody, bounds)
+		scale(tileSize, bounds, opBody)
 		s.translate(offsetX, tileSize, offsetY, opBody, body)
 
 		isTail := body == s.positions[len(s.positions)-1]
@@ -92,7 +92,7 @@ func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 	}
 }
 
-func (s *Slug) scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageOptions) {
+func scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageOptions) {
 	scale := float64(tileSize) / float64(bounds.Dx())
 	op.GeoM.Scale(scale, scale)
 }
@@ -121,7 +121,7 @@ func (s *Slug) rotate(op *ebiten.DrawImageOptions) {
 }
 
 // center rotates around the center of the sprite
-func (s *Slug) center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
+func center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
 	op.GeoM.Translate(
 		-float64(bounds.Dx())/2,
 		-float64(bounds.Dy())/2,
@@ -134,8 +134,7 @@ func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
 	tailSprite := assets.SlugTailSprite
 
 	positions := make([]Vector2, length)
-	positions[0] = startPosition
-	for i, _ := range positions {
+	for i := range positions {
 		positions[i] = Vector2{startPosition.X + i, startPosition.Y}
 	}
 	return &Slug{

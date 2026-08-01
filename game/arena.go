@@ -15,7 +15,7 @@ type Arena struct {
 	slug       *Slug
 }
 
-func (a Arena) Update() error {
+func (a *Arena) Update() error {
 	if err := a.slug.Update(); err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (a Arena) Update() error {
 	return nil
 }
 
-func (a Arena) Draw(screen *ebiten.Image) {
+func (a *Arena) Draw(screen *ebiten.Image) {
 	width, height := screen.Bounds().Dx(), screen.Bounds().Dy()
 	tileSize := min(width/a.columns, height/a.rows)
 	offsetX := (width - (a.columns * tileSize)) / 2
@@ -33,10 +33,8 @@ func (a Arena) Draw(screen *ebiten.Image) {
 	for y := range a.rows {
 		for x := range a.columns {
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Scale(
-				float64(tileSize)/float64(a.background.Bounds().Dx()),
-				float64(tileSize)/float64(a.background.Bounds().Dx()),
-			)
+			s := float64(tileSize) / float64(a.background.Bounds().Dx())
+			op.GeoM.Scale(s, s)
 			op.GeoM.Translate(
 				float64(offsetX+x*tileSize),
 				float64(offsetY+y*tileSize),
@@ -58,14 +56,14 @@ func NewArena(columns int, rows int) *Arena {
 		rows:       rows,
 		background: assets.BackgroundSprite,
 		slug: NewSlug(JumpBy, Vector2{
-			X: Columns - 1,
-			Y: Rows / 2,
+			X: columns - 1,
+			Y: rows / 2,
 		},
 		SlugLength),
 	}
 }
 
-func (a Arena) checkBounds() {
+func (a *Arena) checkBounds() {
 	slugPosition := a.slug.Position()
 
 	// overflow mode

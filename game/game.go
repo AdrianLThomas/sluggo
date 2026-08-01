@@ -24,7 +24,7 @@ type game struct {
 	arena *Arena
 }
 
-func (g game) Update() error {
+func (g *game) Update() error {
 	if err := g.arena.Update(); err != nil {
 		return err
 	}
@@ -32,13 +32,13 @@ func (g game) Update() error {
 	return nil
 }
 
-func (g game) Draw(screen *ebiten.Image) {
+func (g *game) Draw(screen *ebiten.Image) {
 	g.arena.Draw(screen)
 
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 }
 
-func (g game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }
 

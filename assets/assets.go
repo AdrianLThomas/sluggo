@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-//go:embed *
+//go:embed *.png
 var assets embed.FS
 
 var SlugHeadSprite = mustLoadImage("slug_head.png")
