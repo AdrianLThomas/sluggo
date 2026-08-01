@@ -12,6 +12,7 @@ import (
 var assets embed.FS
 
 var SlugSprite = mustLoadImage("slug.png")
+var BackgroundSprite = mustLoadImage("background_tile.png")
 
 func mustLoadImage(name string) *ebiten.Image {
 	f, err := assets.Open(name)

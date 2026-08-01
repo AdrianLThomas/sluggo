@@ -10,13 +10,16 @@ import (
 )
 
 const (
-	ScreenWidth   = 1024
-	ScreenHeight  = 768
+	ScreenWidth   = 800
+	ScreenHeight  = 600
 	MoveFrequency = time.Millisecond * 200
 	JumpBy        = 30.0
+	Columns       = 9
+	Rows          = 9
 )
 
 type game struct {
+	arena     *Arena
 	slug      *Slug
 	moveTimer *lib.Timer
 }
@@ -54,6 +57,8 @@ func (g game) checkBounds() {
 }
 
 func (g game) Draw(screen *ebiten.Image) {
+	g.arena.Draw(screen)
+
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("X: %f,Y: %f", g.slug.Position().X, g.slug.Position().Y),
@@ -68,6 +73,7 @@ func (g game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight
 
 func NewGame() ebiten.Game {
 	return &game{
+		arena:     NewArena(Columns, Rows),
 		slug:      NewSlug(JumpBy),
 		moveTimer: lib.NewTimer(MoveFrequency),
 	}
