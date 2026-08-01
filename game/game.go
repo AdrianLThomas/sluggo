@@ -14,7 +14,7 @@ const (
 	MoveFrequency = time.Millisecond * 200
 	JumpBy        = 1
 	Columns       = 13
-	Rows          = 5
+	Rows          = 9
 )
 
 type Vector2 = lib.Vector2[int]

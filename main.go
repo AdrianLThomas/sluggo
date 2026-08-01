@@ -10,6 +10,7 @@ import (
 func main() {
 	ebiten.SetWindowSize(game.ScreenWidth, game.ScreenHeight)
 	ebiten.SetWindowTitle("Sluggo!")
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeOnlyFullscreenEnabled)
 
 	g := game.NewGame()
 
