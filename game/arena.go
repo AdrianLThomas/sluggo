@@ -41,9 +41,9 @@ func (a *Arena) Update() error {
 			return err
 		}
 
-		isCollision := a.slug.Position() == rock.position
+		isCollision := a.slug.NextPosition() == rock.position
 		if isCollision {
-			// TODO
+			IsGameOver = true
 		}
 	}
 

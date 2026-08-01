@@ -1,8 +1,13 @@
 # Game
-- Add obstacles?
+- Add score
+- Add different game modes?
+  - Overflow arena
+  - Difficulties
+    - Slug speed increases
+    - Rock increases
 
 # Code health
+- Add game state (rather than global gameover bool)
 - Add CI to build
 - Add linter
-- Add some tests
-- Benchmark vector manipulation performance
+- Add more tests

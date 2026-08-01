@@ -147,6 +147,10 @@ func (s *Slug) Grow() {
 	s.positions = append(s.positions, s.positions[len(s.positions)-1])
 }
 
+func (s *Slug) NextPosition() Vector2 {
+	return s.Position().Add(s.nextDirection)
+}
+
 func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
 	positions := make([]Vector2, length)
 	for i := range positions {

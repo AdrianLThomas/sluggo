@@ -6,12 +6,15 @@ import (
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 )
 
-//go:embed *.png
+//go:embed *.png *.ttf
 var assets embed.FS
 
 var BackgroundSprite = mustLoadImage("background_tile.png")
+var Font = mustLoadFont("font.ttf")
 var SlugHeadSprite = mustLoadImage("slug_head.png")
 var SlugBodySprite = mustLoadImage("slug_body.png")
 var SlugTailSprite = mustLoadImage("slug_tail.png")
@@ -31,4 +34,27 @@ func mustLoadImage(name string) *ebiten.Image {
 	}
 
 	return ebiten.NewImageFromImage(img)
+}
+
+func mustLoadFont(name string) font.Face {
+	f, err := assets.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+
+	tt, err := opentype.Parse(f)
+	if err != nil {
+		panic(err)
+	}
+
+	face, err := opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    48,
+		DPI:     72,
+		Hinting: font.HintingVertical,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	return face
 }

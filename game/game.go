@@ -2,11 +2,15 @@ package game
 
 import (
 	"fmt"
+	"image/color"
+	"sluggo/assets"
 	"sluggo/lib"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font"
 )
 
 const (
@@ -21,12 +25,19 @@ const (
 
 type Vector2 = lib.Vector2[int]
 
+// TODO introduce state machine
+var IsGameOver = false
+
 type game struct {
 	arena *Arena
 }
 
 func (g *game) Update() error {
-	return g.arena.Update()
+	if !IsGameOver {
+		return g.arena.Update()
+	}
+
+	return nil
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
@@ -41,6 +52,12 @@ func (g *game) Draw(screen *ebiten.Image) {
 		fmt.Sprintf("X: %v,Y: %v", g.arena.slug.Position().X, g.arena.slug.Position().Y),
 		0, ScreenHeight-20)
 	ebitenutil.DebugPrint(screen, "Sluggo!")
+
+	if IsGameOver {
+		str := "GAME OVER"
+		w := font.MeasureString(assets.Font, str)
+		text.Draw(screen, str, assets.Font, (ScreenWidth-w.Ceil())/2, 50, color.RGBA{A: 255, R: 255})
+	}
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
