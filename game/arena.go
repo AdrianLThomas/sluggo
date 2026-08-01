@@ -23,6 +23,19 @@ func (a *Arena) Update() error {
 
 	a.slug.Wrap(a.columns, a.rows)
 
+	for _, food := range a.food {
+		if err := food.Update(); err != nil {
+			return err
+		}
+
+		isCollision := a.slug.Position() == food.position
+		if isCollision {
+			a.slug.Grow()
+			food.Reset(a.randomGridPosition())
+		}
+
+	}
+
 	return nil
 }
 
@@ -75,7 +88,15 @@ func NewArena(columns int, rows int) *Arena {
 		},
 			SlugLength),
 		food: []*Food{
-			NewFood(Vector2{rand.Intn(columns), rand.Intn(rows)}),
+			NewFood(RandomGridPosition(columns, rows)),
 		},
 	}
+}
+
+func (a *Arena) randomGridPosition() Vector2 {
+	return RandomGridPosition(a.columns, a.rows)
+}
+
+func RandomGridPosition(columns, rows int) Vector2 {
+	return Vector2{rand.Intn(columns), rand.Intn(rows)}
 }

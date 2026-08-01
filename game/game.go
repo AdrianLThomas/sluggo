@@ -16,7 +16,7 @@ const (
 	JumpBy        = 1
 	Columns       = 20
 	Rows          = 15
-	SlugLength    = 10
+	SlugLength    = 1
 )
 
 type Vector2 = lib.Vector2[int]

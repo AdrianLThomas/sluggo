@@ -143,6 +143,10 @@ func (s *Slug) center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
 	)
 }
 
+func (s *Slug) Grow() {
+	s.positions = append(s.positions, s.positions[len(s.positions)-1])
+}
+
 func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
 	positions := make([]Vector2, length)
 	for i := range positions {

@@ -26,6 +26,10 @@ func (f *Food) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 	screen.DrawImage(f.sprite, op)
 }
 
+func (f *Food) Reset(position Vector2) {
+	f.position = position
+}
+
 func NewFood(position Vector2) *Food {
 	return &Food{
 		position: position,
