@@ -25,13 +25,13 @@ type Slug struct {
 
 func (s *Slug) Update() error {
 	switch {
-	case ebiten.IsKeyPressed(ebiten.KeyLeft):
+	case ebiten.IsKeyPressed(ebiten.KeyLeft) && s.currentDirection != DirectionRight:
 		s.currentDirection = DirectionLeft
-	case ebiten.IsKeyPressed(ebiten.KeyUp):
+	case ebiten.IsKeyPressed(ebiten.KeyUp) && s.currentDirection != DirectionDown:
 		s.currentDirection = DirectionUp
-	case ebiten.IsKeyPressed(ebiten.KeyRight):
+	case ebiten.IsKeyPressed(ebiten.KeyRight) && s.currentDirection != DirectionLeft:
 		s.currentDirection = DirectionRight
-	case ebiten.IsKeyPressed(ebiten.KeyDown):
+	case ebiten.IsKeyPressed(ebiten.KeyDown) && s.currentDirection != DirectionUp:
 		s.currentDirection = DirectionDown
 	}
 

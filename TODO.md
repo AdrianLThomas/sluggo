@@ -1,6 +1,3 @@
-# Fix
-- Don't go back on yourself
-
 # Game
 - Add food
 - Grow snake when conflict with food
