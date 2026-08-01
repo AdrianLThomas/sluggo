@@ -60,7 +60,7 @@ func (s *Slug) move() {
 
 	newPos := s.positions[0]
 	newPos.Add(moveBy)
-	s.SetPosition(newPos)
+	s.setPosition(newPos)
 }
 
 func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
@@ -142,7 +142,7 @@ func (s *Slug) Position() Vector2 {
 	return s.positions[0]
 }
 
-func (s *Slug) SetPosition(position Vector2) {
+func (s *Slug) setPosition(position Vector2) {
 	// update body to each prior element
 	for i := len(s.positions) - 1; i > 0; i-- {
 		s.positions[i] = s.positions[i-1]
@@ -152,4 +152,6 @@ func (s *Slug) SetPosition(position Vector2) {
 	s.positions[0] = position
 }
 
-// 1 2 3
+func (s *Slug) Teleport(position Vector2) {
+	s.positions[0] = position
+}

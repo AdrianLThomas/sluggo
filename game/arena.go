@@ -70,12 +70,12 @@ func (a Arena) checkBounds() {
 	// overflow mode
 	switch {
 	case slugPosition.X < 0:
-		a.slug.SetPosition(Vector2{X: a.columns - 1, Y: slugPosition.Y})
+		a.slug.Teleport(Vector2{X: a.columns - 1, Y: slugPosition.Y})
 	case slugPosition.X > a.columns-1:
-		a.slug.SetPosition(Vector2{X: 0, Y: slugPosition.Y})
+		a.slug.Teleport(Vector2{X: 0, Y: slugPosition.Y})
 	case slugPosition.Y < 0:
-		a.slug.SetPosition(Vector2{X: slugPosition.X, Y: a.rows - 1})
+		a.slug.Teleport(Vector2{X: slugPosition.X, Y: a.rows - 1})
 	case slugPosition.Y > a.rows-1:
-		a.slug.SetPosition(Vector2{X: slugPosition.X, Y: 0})
+		a.slug.Teleport(Vector2{X: slugPosition.X, Y: 0})
 	}
 }
