@@ -2,24 +2,36 @@ package game
 
 import (
 	"fmt"
+	"sluggo/lib"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
-	ScreenWidth  = 1024
-	ScreenHeight = 768
+	ScreenWidth   = 1024
+	ScreenHeight  = 768
+	MoveFrequency = time.Millisecond * 200
+	JumpBy        = 30.0
 )
 
 type game struct {
-	slug *Slug
+	slug      *Slug
+	moveTimer *lib.Timer
 }
 
 func (g game) Update() error {
-	if err := g.slug.Update(); err != nil {
-		return err
+	g.moveTimer.Update()
+
+	if g.moveTimer.IsReady() {
+		g.moveTimer.Reset()
+
+		if err := g.slug.Update(); err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
@@ -38,6 +50,7 @@ func (g game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight
 
 func NewGame() ebiten.Game {
 	return &game{
-		slug: NewSlug(),
+		slug:      NewSlug(JumpBy),
+		moveTimer: lib.NewTimer(MoveFrequency),
 	}
 }
