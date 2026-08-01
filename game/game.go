@@ -20,6 +20,6 @@ func (g game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight
 	return 320, 240
 }
 
-func NewGame() *game {
+func NewGame() ebiten.Game {
 	return &game{}
 }
