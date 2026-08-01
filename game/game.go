@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	ScreenWidth   = 800
-	ScreenHeight  = 600
+	ScreenWidth   = 1024
+	ScreenHeight  = 768
 	MoveFrequency = time.Millisecond * 200
 	JumpBy        = 1
-	Columns       = 9
-	Rows          = 9
+	Columns       = 13
+	Rows          = 5
 )
 
 type game struct {
