@@ -16,8 +16,7 @@ var (
 )
 
 type Slug struct {
-	position         Vector2
-	length           int
+	positions        []Vector2
 	sprite           *ebiten.Image
 	jumpBy           int
 	currentDirection Vector2
@@ -41,21 +40,34 @@ func (s *Slug) Update() error {
 
 func (s *Slug) Move() {
 	s.currentDirection = s.nextDirection
+
 	moveBy := Vector2{X: s.currentDirection.X, Y: s.currentDirection.Y}
 	moveBy.Multiply(s.jumpBy)
-	s.position.Add(moveBy)
+
+	newPos := s.positions[0]
+	newPos.Add(moveBy)
+	s.SetPosition(newPos)
 }
 
 func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
 	bounds := s.sprite.Bounds()
 
-	op := &ebiten.DrawImageOptions{}
+	// head
+	opHead := &ebiten.DrawImageOptions{}
+	s.center(opHead, bounds)
+	s.rotate(opHead)
+	s.scale(tileSize, bounds, opHead)
+	s.translate(offsetX, tileSize, offsetY, opHead, s.positions[0])
+	screen.DrawImage(s.sprite, opHead)
 
-	s.rotate(op, bounds)
-	s.scale(tileSize, bounds, op)
-	s.translate(offsetX, tileSize, offsetY, op)
-
-	screen.DrawImage(s.sprite, op)
+	// body
+	for _, body := range s.positions[1:] {
+		opBody := &ebiten.DrawImageOptions{}
+		s.center(opBody, bounds)
+		s.scale(tileSize, bounds, opBody)
+		s.translate(offsetX, tileSize, offsetY, opBody, body)
+		screen.DrawImage(s.sprite, opBody)
+	}
 }
 
 func (s *Slug) scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageOptions) {
@@ -63,9 +75,9 @@ func (s *Slug) scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageO
 	op.GeoM.Scale(scale, scale)
 }
 
-func (s *Slug) translate(offsetX int, tileSize int, offsetY int, op *ebiten.DrawImageOptions) {
-	x := offsetX + s.position.X*tileSize
-	y := offsetY + s.position.Y*tileSize
+func (s *Slug) translate(offsetX int, tileSize int, offsetY int, op *ebiten.DrawImageOptions, position Vector2) {
+	x := offsetX + position.X*tileSize
+	y := offsetY + position.Y*tileSize
 
 	op.GeoM.Translate(
 		float64(x+tileSize/2),
@@ -73,13 +85,7 @@ func (s *Slug) translate(offsetX int, tileSize int, offsetY int, op *ebiten.Draw
 	)
 }
 
-func (s *Slug) rotate(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
-	// rotate around the center of the sprite
-	op.GeoM.Translate(
-		-float64(bounds.Dx())/2,
-		-float64(bounds.Dy())/2,
-	)
-
+func (s *Slug) rotate(op *ebiten.DrawImageOptions) {
 	switch s.currentDirection {
 	case DirectionLeft:
 		op.GeoM.Rotate(0)
@@ -92,12 +98,23 @@ func (s *Slug) rotate(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
 	}
 }
 
+// center rotates around the center of the sprite
+func (s *Slug) center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
+	op.GeoM.Translate(
+		-float64(bounds.Dx())/2,
+		-float64(bounds.Dy())/2,
+	)
+}
+
 func NewSlug(jumpBy int, startPosition Vector2) *Slug {
 	sprite := assets.SlugSprite
 
 	return &Slug{
-		length:           1,
-		position:         startPosition,
+		positions: []Vector2{
+			startPosition,
+			{startPosition.X + 1, startPosition.Y},
+			{startPosition.X + 2, startPosition.Y},
+		},
 		sprite:           sprite,
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
@@ -105,10 +122,19 @@ func NewSlug(jumpBy int, startPosition Vector2) *Slug {
 	}
 }
 
+// Position returns the position of the head
 func (s *Slug) Position() Vector2 {
-	return s.position
+	return s.positions[0]
 }
 
 func (s *Slug) SetPosition(position Vector2) {
-	s.position = position
+	// update body to each prior element
+	for i := len(s.positions) - 1; i > 0; i-- {
+		s.positions[i] = s.positions[i-1]
+	}
+
+	// set head
+	s.positions[0] = position
 }
+
+// 1 2 3

@@ -1,6 +1,10 @@
+# To fix
+- body renders outside of arena
+
 # Game
+- Grow snake 
+  - when conflict with food
 - Add food
-- Grow snake when conflict with food
 - Add obstacles?
 
 # Code health
