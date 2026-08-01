@@ -7,9 +7,11 @@ import (
 )
 
 type Arena struct {
-	columns int
-	rows    int
-	slug    *Slug
+	columns    int
+	rows       int
+	slug       *Slug
+	bgImage    *ebiten.Image
+	bgTileSize int
 }
 
 func (a *Arena) Update() error {
@@ -23,19 +25,39 @@ func (a *Arena) Update() error {
 }
 
 func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
+	if a.bgImage == nil || tileSize != a.bgTileSize {
+		a.rebuildBackground(tileSize)
+	}
+
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(offsetX), float64(offsetY))
+	screen.DrawImage(a.bgImage, op)
+
+	a.slug.Draw(screen, tileSize, offsetX, offsetY)
+}
+
+func (a *Arena) rebuildBackground(tileSize int) {
+	if a.bgImage != nil {
+		a.bgImage.Dispose()
+	}
+
+	w := a.columns * tileSize
+	h := a.rows * tileSize
+	a.bgImage = ebiten.NewImage(w, h)
+
 	s := float64(tileSize) / float64(assets.BackgroundSprite.Bounds().Dx())
+	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(s, s)
 
 	for y := range a.rows {
 		for x := range a.columns {
-			op.GeoM.SetElement(0, 2, float64(offsetX+x*tileSize))
-			op.GeoM.SetElement(1, 2, float64(offsetY+y*tileSize))
-			screen.DrawImage(assets.BackgroundSprite, op)
+			op.GeoM.SetElement(0, 2, float64(x*tileSize))
+			op.GeoM.SetElement(1, 2, float64(y*tileSize))
+			a.bgImage.DrawImage(assets.BackgroundSprite, op)
 		}
 	}
 
-	a.slug.Draw(screen, tileSize, offsetX, offsetY)
+	a.bgTileSize = tileSize
 }
 
 func NewArena(columns int, rows int) *Arena {
