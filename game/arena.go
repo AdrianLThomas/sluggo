@@ -23,15 +23,14 @@ func (a *Arena) Update() error {
 }
 
 func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
+	op := &ebiten.DrawImageOptions{}
+	s := float64(tileSize) / float64(assets.BackgroundSprite.Bounds().Dx())
+	op.GeoM.Scale(s, s)
+
 	for y := range a.rows {
 		for x := range a.columns {
-			op := &ebiten.DrawImageOptions{}
-			s := float64(tileSize) / float64(assets.BackgroundSprite.Bounds().Dx())
-			op.GeoM.Scale(s, s)
-			op.GeoM.Translate(
-				float64(offsetX+x*tileSize),
-				float64(offsetY+y*tileSize),
-			)
+			op.GeoM.SetElement(0, 2, float64(offsetX+x*tileSize))
+			op.GeoM.SetElement(1, 2, float64(offsetY+y*tileSize))
 			screen.DrawImage(assets.BackgroundSprite, op)
 		}
 	}
