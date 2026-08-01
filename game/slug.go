@@ -1,10 +1,16 @@
 package game
 
-import "sluggo/lib"
+import (
+	"sluggo/assets"
+	"sluggo/lib"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 type slug struct {
 	position lib.Vector2D
 	length   int
+	sprite   *ebiten.Image
 }
 
 func (s slug) Position() lib.Vector2D {
@@ -22,6 +28,8 @@ type Slug interface {
 
 func NewSlug(startPosition lib.Vector2D) Slug {
 	return &slug{
+		length:   1,
 		position: startPosition,
+		sprite:   assets.SlugSprite,
 	}
 }
