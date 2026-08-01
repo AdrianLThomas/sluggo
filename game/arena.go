@@ -1,6 +1,7 @@
 package game
 
 import (
+	"math/rand"
 	"sluggo/assets"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,6 +13,7 @@ type Arena struct {
 	slug       *Slug
 	bgImage    *ebiten.Image
 	bgTileSize int
+	food       []*Food
 }
 
 func (a *Arena) Update() error {
@@ -33,6 +35,9 @@ func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY in
 	op.GeoM.Translate(float64(offsetX), float64(offsetY))
 	screen.DrawImage(a.bgImage, op)
 
+	for _, food := range a.food {
+		food.Draw(screen, tileSize, offsetX, offsetY)
+	}
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
 }
 
@@ -69,5 +74,8 @@ func NewArena(columns int, rows int) *Arena {
 			Y: rows / 2,
 		},
 			SlugLength),
+		food: []*Food{
+			NewFood(Vector2{rand.Intn(columns), rand.Intn(rows)}),
+		},
 	}
 }

@@ -11,10 +11,11 @@ import (
 //go:embed *.png
 var assets embed.FS
 
+var BackgroundSprite = mustLoadImage("background_tile.png")
 var SlugHeadSprite = mustLoadImage("slug_head.png")
 var SlugBodySprite = mustLoadImage("slug_body.png")
 var SlugTailSprite = mustLoadImage("slug_tail.png")
-var BackgroundSprite = mustLoadImage("background_tile.png")
+var FoodSprite = mustLoadImage("food.png")
 
 func mustLoadImage(name string) *ebiten.Image {
 	f, err := assets.Open(name)
