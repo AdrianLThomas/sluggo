@@ -64,20 +64,24 @@ func NewSlug(jumpBy float64) *Slug {
 	halfW := float64(bounds.Dx()) / 2
 	halfH := float64(bounds.Dy()) / 2
 
-	//center := lib.Vector2D{
-	//	X: ScreenWidth/2 - halfW,
-	//	Y: ScreenHeight/2 - halfH,
-	//}
-	right := lib.Vector2D{
+	rightOfScreen := lib.Vector2D{
 		X: ScreenWidth - halfW,
 		Y: ScreenHeight/2 + halfH,
 	}
 
 	return &Slug{
 		length:           1,
-		position:         &right,
+		position:         &rightOfScreen,
 		sprite:           sprite,
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
 	}
+}
+
+func (s *Slug) Position() *lib.Vector2D {
+	return s.position
+}
+
+func (s *Slug) SetPosition(position *lib.Vector2D) {
+	s.position = position
 }

@@ -1,9 +1,10 @@
 # Game
-- Loop position when off screen
 - Add food
 - Grow snake when conflict with food
 - Add obstacles?
 
+## Graphics
+Grid background (debug?)
 
 # Code health
 - Add CI to build
