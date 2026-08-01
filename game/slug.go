@@ -43,18 +43,18 @@ func (s *Slug) Move() {
 	s.position.Add(&moveBy)
 }
 
-func (s *Slug) Draw(screen *ebiten.Image) {
+func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
 	bounds := s.sprite.Bounds()
-	halfW := float64(bounds.Dx()) / 2
-	halfH := float64(bounds.Dy()) / 2
+
+	scale := float64(tileSize) / float64(bounds.Dx())
 
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scale, scale)
+	
+	x := float64(offsetX) + s.position.X*float64(tileSize)
+	y := float64(offsetY) + s.position.Y*float64(tileSize)
 
-	op.GeoM.Translate(-halfW, -halfH)
-	op.GeoM.Translate(
-		s.position.X*float64(bounds.Dx()),
-		s.position.Y*float64(bounds.Dy()),
-	)
+	op.GeoM.Translate(x, y)
 
 	screen.DrawImage(s.sprite, op)
 }

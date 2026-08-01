@@ -55,7 +55,7 @@ func (a Arena) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	a.slug.Draw(screen)
+	a.slug.Draw(screen, tileSize, offsetX, offsetY)
 
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("X: %f,Y: %f", a.slug.Position().X, a.slug.Position().Y),
@@ -68,7 +68,7 @@ func NewArena(columns int, rows int) *Arena {
 		rows:       rows,
 		background: assets.BackgroundSprite,
 		slug: NewSlug(JumpBy, &lib.Vector2D{
-			X: Columns,
+			X: Columns - 1,
 			Y: Rows / 2,
 		}),
 		moveTimer: lib.NewTimer(MoveFrequency),
