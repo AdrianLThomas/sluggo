@@ -7,7 +7,7 @@ run:
 	go run .
 
 test:
-	go test ./...
+	go test -race ./...
 
 benchmark:
 	make benchmark-lib
