@@ -18,8 +18,8 @@ const (
 	ScreenHeight  = 768
 	MoveFrequency = time.Millisecond * 150
 	JumpBy        = 1
-	Columns       = 20
-	Rows          = 15
+	Columns       = 10
+	Rows          = 7
 	SlugLength    = 1
 )
 

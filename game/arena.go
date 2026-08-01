@@ -22,7 +22,7 @@ func (a *Arena) Update() error {
 		return err
 	}
 
-	a.slug.Wrap(a.columns, a.rows)
+	a.slug.Wrap()
 
 	for _, food := range a.food {
 		if err := food.Update(); err != nil {
@@ -105,7 +105,9 @@ func NewArena(columns int, rows int) *Arena {
 			X: columns - 1,
 			Y: rows / 2,
 		},
-			SlugLength),
+			SlugLength,
+			columns,
+			rows),
 		food: []*Food{
 			NewFood(foodPos),
 		},

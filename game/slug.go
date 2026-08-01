@@ -25,6 +25,8 @@ type Slug struct {
 	currentDirection Vector2
 	nextDirection    Vector2
 	moveTimer        *lib.Timer
+	gridColumns      int
+	gridRows         int
 }
 
 func (s *Slug) Update() error {
@@ -66,18 +68,23 @@ func (s *Slug) setPosition(position Vector2) {
 	s.positions[0] = position
 }
 
-func (s *Slug) Wrap(columns, rows int) {
-	pos := s.positions[0]
+func (s *Slug) Wrap() {
+	s.positions[0] = s.wrap(s.positions[0])
+}
+
+func (s *Slug) wrap(position Vector2) Vector2 {
 	switch {
-	case pos.X < 0:
-		s.positions[0] = Vector2{X: columns - 1, Y: pos.Y}
-	case pos.X >= columns:
-		s.positions[0] = Vector2{X: 0, Y: pos.Y}
-	case pos.Y < 0:
-		s.positions[0] = Vector2{X: pos.X, Y: rows - 1}
-	case pos.Y >= rows:
-		s.positions[0] = Vector2{X: pos.X, Y: 0}
+	case position.X < 0:
+		return Vector2{X: s.gridColumns - 1, Y: position.Y}
+	case position.X >= s.gridColumns:
+		return Vector2{X: 0, Y: position.Y}
+	case position.Y < 0:
+		return Vector2{X: position.X, Y: s.gridRows - 1}
+	case position.Y >= s.gridRows:
+		return Vector2{X: position.X, Y: 0}
 	}
+
+	return position
 }
 
 func (s *Slug) Position() Vector2 {
@@ -148,10 +155,11 @@ func (s *Slug) Grow() {
 }
 
 func (s *Slug) NextPosition() Vector2 {
-	return s.Position().Add(s.nextDirection)
+	delta := s.nextDirection.Multiply(s.jumpBy)
+	return s.wrap(s.Position().Add(delta))
 }
 
-func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
+func NewSlug(jumpBy int, startPosition Vector2, length, columns, rows int) *Slug {
 	positions := make([]Vector2, length)
 	for i := range positions {
 		positions[i] = Vector2{startPosition.X + i, startPosition.Y}
@@ -165,5 +173,7 @@ func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
 		currentDirection: DirectionLeft,
 		nextDirection:    DirectionLeft,
 		moveTimer:        lib.NewTimer(MoveFrequency, ebiten.TPS()),
+		gridColumns:      columns,
+		gridRows:         rows,
 	}
 }
