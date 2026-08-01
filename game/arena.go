@@ -60,7 +60,8 @@ func NewArena(columns int, rows int) *Arena {
 		slug: NewSlug(JumpBy, Vector2{
 			X: Columns - 1,
 			Y: Rows / 2,
-		}),
+		},
+		SlugLength),
 	}
 }
 

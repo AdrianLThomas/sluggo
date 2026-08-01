@@ -18,7 +18,9 @@ var (
 
 type Slug struct {
 	positions        []Vector2
-	sprite           *ebiten.Image
+	headSprite       *ebiten.Image
+	bodySprite       *ebiten.Image
+	tailSprite       *ebiten.Image
 	jumpBy           int
 	currentDirection Vector2
 	nextDirection    Vector2
@@ -64,7 +66,7 @@ func (s *Slug) move() {
 }
 
 func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
-	bounds := s.sprite.Bounds()
+	bounds := s.headSprite.Bounds()
 
 	// head
 	opHead := &ebiten.DrawImageOptions{}
@@ -72,7 +74,7 @@ func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 	s.rotate(opHead)
 	s.scale(tileSize, bounds, opHead)
 	s.translate(offsetX, tileSize, offsetY, opHead, s.positions[0])
-	screen.DrawImage(s.sprite, opHead)
+	screen.DrawImage(s.headSprite, opHead)
 
 	// body
 	for _, body := range s.positions[1:] {
@@ -80,7 +82,13 @@ func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 		s.center(opBody, bounds)
 		s.scale(tileSize, bounds, opBody)
 		s.translate(offsetX, tileSize, offsetY, opBody, body)
-		screen.DrawImage(s.sprite, opBody)
+
+		isTail := body == s.positions[len(s.positions)-1]
+		if !isTail {
+			screen.DrawImage(s.bodySprite, opBody)
+		} else {
+			screen.DrawImage(s.tailSprite, opBody)
+		}
 	}
 }
 
@@ -120,16 +128,21 @@ func (s *Slug) center(op *ebiten.DrawImageOptions, bounds image.Rectangle) {
 	)
 }
 
-func NewSlug(jumpBy int, startPosition Vector2) *Slug {
-	sprite := assets.SlugSprite
+func NewSlug(jumpBy int, startPosition Vector2, length int) *Slug {
+	headSprite := assets.SlugHeadSprite
+	bodySprite := assets.SlugBodySprite
+	tailSprite := assets.SlugTailSprite
 
+	positions := make([]Vector2, length)
+	positions[0] = startPosition
+	for i, _ := range positions {
+		positions[i] = Vector2{startPosition.X + i, startPosition.Y}
+	}
 	return &Slug{
-		positions: []Vector2{
-			startPosition,
-			{startPosition.X + 1, startPosition.Y},
-			{startPosition.X + 2, startPosition.Y},
-		},
-		sprite:           sprite,
+		positions:        positions,
+		headSprite:       headSprite,
+		bodySprite:       bodySprite,
+		tailSprite:       tailSprite,
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
 		nextDirection:    DirectionLeft,

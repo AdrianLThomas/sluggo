@@ -11,10 +11,11 @@ import (
 const (
 	ScreenWidth   = 1024
 	ScreenHeight  = 768
-	MoveFrequency = time.Millisecond * 200
+	MoveFrequency = time.Millisecond * 150
 	JumpBy        = 1
-	Columns       = 13
-	Rows          = 9
+	Columns       = 20
+	Rows          = 15
+	SlugLength    = 10
 )
 
 type Vector2 = lib.Vector2[int]

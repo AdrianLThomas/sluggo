@@ -11,7 +11,9 @@ import (
 //go:embed *
 var assets embed.FS
 
-var SlugSprite = mustLoadImage("slug.png")
+var SlugHeadSprite = mustLoadImage("slug_head.png")
+var SlugBodySprite = mustLoadImage("slug_body.png")
+var SlugTailSprite = mustLoadImage("slug_tail.png")
 var BackgroundSprite = mustLoadImage("background_tile.png")
 
 func mustLoadImage(name string) *ebiten.Image {
