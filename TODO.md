@@ -1,0 +1,7 @@
+- Render Slug
+- Move slug every n ticks in a direction
+- Loop position when off screen
+- Accept user input
+- Add food
+- Grow snake when conflict with food
+- Add obstacles?
