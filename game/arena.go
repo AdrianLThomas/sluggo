@@ -58,7 +58,7 @@ func (a Arena) Draw(screen *ebiten.Image) {
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
 
 	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("X: %f,Y: %f", a.slug.Position().X, a.slug.Position().Y),
+		fmt.Sprintf("X: %v,Y: %v", a.slug.Position().X, a.slug.Position().Y),
 		0, ScreenHeight-20)
 }
 
