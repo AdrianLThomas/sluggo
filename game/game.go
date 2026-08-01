@@ -24,12 +24,14 @@ type game struct {
 func (g game) Update() error {
 	g.moveTimer.Update()
 
+	if err := g.slug.Update(); err != nil {
+		return err
+	}
+
 	if g.moveTimer.IsReady() {
 		g.moveTimer.Reset()
 
-		if err := g.slug.Update(); err != nil {
-			return err
-		}
+		g.slug.Move()
 	}
 
 	return nil

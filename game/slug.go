@@ -7,20 +7,42 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+var (
+	DirectionLeft  = lib.Vector2D{X: -1}
+	DirectionUp    = lib.Vector2D{Y: -1}
+	DirectionRight = lib.Vector2D{X: +1}
+	DirectionDown  = lib.Vector2D{Y: +1}
+)
+
 type Slug struct {
-	position *lib.Vector2D
-	length   int
-	sprite   *ebiten.Image
-	jumpBy   float64
+	position         *lib.Vector2D
+	length           int
+	sprite           *ebiten.Image
+	jumpBy           float64
+	currentDirection lib.Vector2D
 }
 
 var startSpeed float64 = 1
 
 func (s *Slug) Update() error {
-	speed := startSpeed * s.jumpBy
-	s.position.Add(-speed, 0)
+	switch {
+	case ebiten.IsKeyPressed(ebiten.KeyLeft):
+		s.currentDirection = DirectionLeft
+	case ebiten.IsKeyPressed(ebiten.KeyUp):
+		s.currentDirection = DirectionUp
+	case ebiten.IsKeyPressed(ebiten.KeyRight):
+		s.currentDirection = DirectionRight
+	case ebiten.IsKeyPressed(ebiten.KeyDown):
+		s.currentDirection = DirectionDown
+	}
 
 	return nil
+}
+
+func (s *Slug) Move() {
+	moveBy := lib.Vector2D{X: s.currentDirection.X, Y: s.currentDirection.Y}
+	moveBy.Multiply(startSpeed * s.jumpBy)
+	s.position.Add(&moveBy)
 }
 
 func (s *Slug) Draw(screen *ebiten.Image) {
@@ -42,15 +64,20 @@ func NewSlug(jumpBy float64) *Slug {
 	halfW := float64(bounds.Dx()) / 2
 	halfH := float64(bounds.Dy()) / 2
 
-	pos := lib.Vector2D{
-		X: ScreenWidth/2 - halfW,
-		Y: ScreenHeight/2 - halfH,
+	//center := lib.Vector2D{
+	//	X: ScreenWidth/2 - halfW,
+	//	Y: ScreenHeight/2 - halfH,
+	//}
+	right := lib.Vector2D{
+		X: ScreenWidth - halfW,
+		Y: ScreenHeight/2 + halfH,
 	}
 
 	return &Slug{
-		length:   1,
-		position: &pos,
-		sprite:   sprite,
-		jumpBy:   jumpBy,
+		length:           1,
+		position:         &right,
+		sprite:           sprite,
+		jumpBy:           jumpBy,
+		currentDirection: DirectionLeft,
 	}
 }
