@@ -8,11 +8,11 @@ import (
 )
 
 func main() {
-	ebiten.SetWindowSize(game.ScreenWidth, game.ScreenHeight)
+	ebiten.SetWindowSize(game.ScreenSize.X, game.ScreenSize.Y)
 	ebiten.SetWindowTitle("Sluggo!")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeOnlyFullscreenEnabled)
 
-	g := game.NewGame()
+	g := game.NewGame(10, 7)
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

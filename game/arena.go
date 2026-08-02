@@ -105,7 +105,7 @@ func NewArena(columns int, rows int) *Arena {
 			X: columns - 1,
 			Y: rows / 2,
 		},
-			SlugLength,
+			StartingSlugLength,
 			columns,
 			rows),
 		food: []*Food{

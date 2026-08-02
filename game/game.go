@@ -3,25 +3,20 @@ package game
 import (
 	"fmt"
 	"image/color"
-	"sluggo/assets"
 	"sluggo/lib"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
 )
 
 const (
-	ScreenWidth   = 1024
-	ScreenHeight  = 768
-	MoveFrequency = time.Millisecond * 150
-	JumpBy        = 1
-	Columns       = 10
-	Rows          = 7
-	SlugLength    = 1
+	MoveFrequency      = time.Millisecond * 150
+	JumpBy             = 1
+	StartingSlugLength = 1
 )
+
+var ScreenSize = Vector2{X: 1024, Y: 768}
 
 type Vector2 = lib.Vector2[int]
 
@@ -29,7 +24,9 @@ type Vector2 = lib.Vector2[int]
 var IsGameOver = false
 
 type game struct {
-	arena *Arena
+	columns int
+	rows    int
+	arena   *Arena
 }
 
 func (g *game) Update() error {
@@ -50,13 +47,25 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("X: %v,Y: %v", g.arena.slug.Position().X, g.arena.slug.Position().Y),
-		0, ScreenHeight-20)
+		0, ScreenSize.Y-20)
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 
 	if IsGameOver {
-		str := "GAME OVER"
-		w := font.MeasureString(assets.Font, str)
-		text.Draw(screen, str, assets.Font, (ScreenWidth-w.Ceil())/2, 50, color.RGBA{A: 255, R: 255})
+		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
+			Colour:     color.RGBA{A: 255, R: 255},
+			Position:   lib.HorizontalCentre,
+			ScreenSize: ScreenSize,
+		}).Draw(screen)
+		lib.NewOnscreenText("Press space to play again", lib.OnscreenTextConfig{
+			Colour:     color.RGBA{A: 255, G: 255},
+			Position:   lib.HorizontalCentre | lib.VerticalCentre,
+			ScreenSize: ScreenSize,
+		}).Draw(screen)
+
+		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			g.arena = NewArena(g.arena.columns, g.arena.rows)
+			IsGameOver = false
+		}
 	}
 }
 
@@ -64,8 +73,10 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
-func NewGame() ebiten.Game {
+func NewGame(columns, rows int) ebiten.Game {
 	return &game{
-		arena: NewArena(Columns, Rows),
+		columns: columns,
+		rows:    rows,
+		arena:   NewArena(columns, rows),
 	}
 }
