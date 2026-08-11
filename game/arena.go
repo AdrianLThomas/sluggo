@@ -42,7 +42,7 @@ func (a *Arena) Update() error {
 		}
 
 		isCollision := a.slug.NextPosition() == rock.position
-		if isCollision {
+		if isCollision || a.slug.WillEatSelf() {
 			IsGameOver = true
 		}
 	}

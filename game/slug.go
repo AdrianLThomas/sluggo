@@ -3,6 +3,7 @@ package game
 import (
 	"image"
 	"math"
+	"slices"
 	"sluggo/assets"
 	"sluggo/lib"
 
@@ -27,6 +28,10 @@ type Slug struct {
 	moveTimer        *lib.Timer
 	gridColumns      int
 	gridRows         int
+}
+
+func (s *Slug) WillEatSelf() bool {
+	return slices.Contains(s.positions, s.NextPosition())
 }
 
 func (s *Slug) Update() error {
