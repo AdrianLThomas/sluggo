@@ -15,6 +15,7 @@ type Arena struct {
 	bgTileSize int
 	food       []*Food
 	rock       []*Rock
+	onGameOver func()
 }
 
 func (a *Arena) Update() error {
@@ -43,7 +44,7 @@ func (a *Arena) Update() error {
 
 		isCollision := a.slug.NextPosition() == rock.position
 		if isCollision || a.slug.WillEatSelf() {
-			IsGameOver = true
+			onGameOver()
 		}
 	}
 
@@ -92,7 +93,7 @@ func (a *Arena) rebuildBackground(tileSize int) {
 	a.bgTileSize = tileSize
 }
 
-func NewArena(columns int, rows int) *Arena {
+func NewArena(columns int, rows int, onGameOver func()) *Arena {
 	foodPos := RandomGridPosition(columns, rows)
 	rockPos := RandomGridPosition(columns, rows)
 	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
@@ -114,6 +115,7 @@ func NewArena(columns int, rows int) *Arena {
 		rock: []*Rock{
 			NewRock(rockPos),
 		},
+		onGameOver: onGameOver,
 	}
 }
 

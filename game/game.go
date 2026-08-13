@@ -20,8 +20,7 @@ var ScreenSize = Vector2{X: 1024, Y: 768}
 
 type Vector2 = lib.Vector2[int]
 
-// TODO introduce state machine
-var IsGameOver = false
+var gameState = StatePlaying
 
 type game struct {
 	columns int
@@ -30,7 +29,7 @@ type game struct {
 }
 
 func (g *game) Update() error {
-	if !IsGameOver {
+	if gameState == StatePlaying {
 		return g.arena.Update()
 	}
 
@@ -50,7 +49,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 		0, ScreenSize.Y-20)
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 
-	if IsGameOver {
+	if gameState == StateGameOver {
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, R: 255},
 			Position:   lib.HorizontalCentre,
@@ -63,8 +62,8 @@ func (g *game) Draw(screen *ebiten.Image) {
 		}).Draw(screen)
 
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			g.arena = NewArena(g.arena.columns, g.arena.rows)
-			IsGameOver = false
+			g.arena = NewArena(g.arena.columns, g.arena.rows, onGameOver)
+			gameState = StatePlaying
 		}
 	}
 }
@@ -73,10 +72,14 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
+func onGameOver() {
+	gameState = StateGameOver
+}
+
 func NewGame(columns, rows int) ebiten.Game {
 	return &game{
 		columns: columns,
 		rows:    rows,
-		arena:   NewArena(columns, rows),
+		arena:   NewArena(columns, rows, onGameOver),
 	}
 }
