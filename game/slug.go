@@ -44,6 +44,9 @@ func (s *Slug) Update() error {
 		s.move()
 	}
 
+	// wrap if necessary
+	s.positions[0] = s.wrap(s.positions[0])
+
 	return nil
 }
 
@@ -71,10 +74,6 @@ func (s *Slug) setPosition(position Vector2) {
 		s.positions[i] = s.positions[i-1]
 	}
 	s.positions[0] = position
-}
-
-func (s *Slug) Wrap() {
-	s.positions[0] = s.wrap(s.positions[0])
 }
 
 func (s *Slug) wrap(position Vector2) Vector2 {

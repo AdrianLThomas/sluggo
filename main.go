@@ -12,7 +12,7 @@ func main() {
 	ebiten.SetWindowTitle("Sluggo!")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeOnlyFullscreenEnabled)
 
-	g := game.NewGame(10, 7)
+	g := game.NewGame(20, 15)
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

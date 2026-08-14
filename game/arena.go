@@ -23,8 +23,6 @@ func (a *Arena) Update() error {
 		return err
 	}
 
-	a.slug.Wrap()
-
 	for _, food := range a.food {
 		if err := food.Update(); err != nil {
 			return err
@@ -99,16 +97,15 @@ func NewArena(columns int, rows int, onGameOver func()) *Arena {
 	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
 		rockPos = RandomGridPosition(columns, rows)
 	}
+	slug := NewSlug(JumpBy, Vector2{X: columns - 1, Y: rows / 2},
+		StartingSlugLength,
+		columns,
+		rows)
+
 	return &Arena{
 		columns: columns,
 		rows:    rows,
-		slug: NewSlug(JumpBy, Vector2{
-			X: columns - 1,
-			Y: rows / 2,
-		},
-			StartingSlugLength,
-			columns,
-			rows),
+		slug:    slug,
 		food: []*Food{
 			NewFood(foodPos),
 		},
