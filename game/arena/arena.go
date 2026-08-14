@@ -1,20 +1,26 @@
-package game
+package arena
 
 import (
+	"fmt"
 	"math/rand"
 	"sluggo/assets"
+	"sluggo/game/characters"
+	"sluggo/game/objects"
+	"sluggo/types"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type Arena struct {
 	columns    int
 	rows       int
-	slug       *Slug
+	slug       *characters.Slug
 	bgImage    *ebiten.Image
 	bgTileSize int
-	food       []*Food
-	rock       []*Rock
+	food       []*objects.Food
+	rock       []*objects.Rock
 	onGameOver func()
 }
 
@@ -28,7 +34,7 @@ func (a *Arena) Update() error {
 			return err
 		}
 
-		isCollision := a.slug.Position() == food.position
+		isCollision := a.slug.Position() == food.Position()
 		if isCollision {
 			a.slug.Grow()
 			food.Reset(a.randomGridPosition())
@@ -40,9 +46,9 @@ func (a *Arena) Update() error {
 			return err
 		}
 
-		isCollision := a.slug.NextPosition() == rock.position
+		isCollision := a.slug.NextPosition() == rock.Position()
 		if isCollision || a.slug.WillEatSelf() {
-			onGameOver()
+			a.onGameOver()
 		}
 	}
 
@@ -65,6 +71,10 @@ func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY in
 		rock.Draw(screen, tileSize, offsetX, offsetY)
 	}
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
+
+	ebitenutil.DebugPrintAt(screen,
+		fmt.Sprintf("X: %v,Y: %v", a.slug.Position().X, a.slug.Position().Y),
+		0, screen.Bounds().Dy()-20)
 }
 
 func (a *Arena) rebuildBackground(tileSize int) {
@@ -97,8 +107,14 @@ func NewArena(columns int, rows int, onGameOver func()) *Arena {
 	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
 		rockPos = RandomGridPosition(columns, rows)
 	}
-	slug := NewSlug(JumpBy, Vector2{X: columns - 1, Y: rows / 2},
-		StartingSlugLength,
+	const jumpBy = 1
+	const moveFrequency = time.Millisecond * 150
+	const startingSlugLength = 1
+	slug := characters.NewSlug(
+		jumpBy,
+		types.Vector2{X: columns - 1, Y: rows / 2},
+		moveFrequency,
+		startingSlugLength,
 		columns,
 		rows)
 
@@ -106,20 +122,20 @@ func NewArena(columns int, rows int, onGameOver func()) *Arena {
 		columns: columns,
 		rows:    rows,
 		slug:    slug,
-		food: []*Food{
-			NewFood(foodPos),
+		food: []*objects.Food{
+			objects.NewFood(foodPos),
 		},
-		rock: []*Rock{
-			NewRock(rockPos),
+		rock: []*objects.Rock{
+			objects.NewRock(rockPos),
 		},
 		onGameOver: onGameOver,
 	}
 }
 
-func (a *Arena) randomGridPosition() Vector2 {
+func (a *Arena) randomGridPosition() types.Vector2 {
 	return RandomGridPosition(a.columns, a.rows)
 }
 
-func RandomGridPosition(columns, rows int) Vector2 {
-	return Vector2{rand.Intn(columns), rand.Intn(rows)}
+func RandomGridPosition(columns, rows int) types.Vector2 {
+	return types.Vector2{rand.Intn(columns), rand.Intn(rows)}
 }

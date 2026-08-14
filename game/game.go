@@ -1,31 +1,21 @@
 package game
 
 import (
-	"fmt"
 	"image/color"
+	"sluggo/game/arena"
 	"sluggo/lib"
-	"time"
+	"sluggo/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
-
-const (
-	MoveFrequency      = time.Millisecond * 150
-	JumpBy             = 1
-	StartingSlugLength = 1
-)
-
-var ScreenSize = Vector2{X: 1024, Y: 768}
-
-type Vector2 = lib.Vector2[int]
 
 var gameState = StatePlaying
 
 type game struct {
 	columns int
 	rows    int
-	arena   *Arena
+	arena   *arena.Arena
 }
 
 func (g *game) Update() error {
@@ -38,31 +28,30 @@ func (g *game) Update() error {
 
 func (g *game) Draw(screen *ebiten.Image) {
 	width, height := screen.Bounds().Dx(), screen.Bounds().Dy()
-	tileSize := min(width/g.arena.columns, height/g.arena.rows)
-	offsetX := (width - (g.arena.columns * tileSize)) / 2
-	offsetY := (height - (g.arena.rows * tileSize)) / 2
+	tileSize := min(width/g.columns, height/g.rows)
+	offsetX := (width - (g.columns * tileSize)) / 2
+	offsetY := (height - (g.rows * tileSize)) / 2
 
 	g.arena.Draw(screen, tileSize, offsetX, offsetY)
 
-	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("X: %v,Y: %v", g.arena.slug.Position().X, g.arena.slug.Position().Y),
-		0, ScreenSize.Y-20)
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 
 	if gameState == StateGameOver {
+		bounds := screen.Bounds()
+		screenSize := types.Vector2{X: bounds.Dx(), Y: bounds.Dy()}
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, R: 255},
 			Position:   lib.HorizontalCentre,
-			ScreenSize: ScreenSize,
+			ScreenSize: screenSize,
 		}).Draw(screen)
 		lib.NewOnscreenText("Press space to play again", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, G: 255},
 			Position:   lib.HorizontalCentre | lib.VerticalCentre,
-			ScreenSize: ScreenSize,
+			ScreenSize: screenSize,
 		}).Draw(screen)
 
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			g.arena = NewArena(g.arena.columns, g.arena.rows, onGameOver)
+			g.arena = arena.NewArena(g.columns, g.rows, onGameOver)
 			gameState = StatePlaying
 		}
 	}
@@ -80,6 +69,6 @@ func NewGame(columns, rows int) ebiten.Game {
 	return &game{
 		columns: columns,
 		rows:    rows,
-		arena:   NewArena(columns, rows, onGameOver),
+		arena:   arena.NewArena(columns, rows, onGameOver),
 	}
 }

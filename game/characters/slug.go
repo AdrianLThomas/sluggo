@@ -1,4 +1,4 @@
-package game
+package characters
 
 import (
 	"image"
@@ -6,25 +6,27 @@ import (
 	"slices"
 	"sluggo/assets"
 	"sluggo/lib"
+	"sluggo/types"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var (
-	DirectionLeft  = Vector2{X: -1}
-	DirectionUp    = Vector2{Y: -1}
-	DirectionRight = Vector2{X: +1}
-	DirectionDown  = Vector2{Y: +1}
+	DirectionLeft  = types.Vector2{X: -1}
+	DirectionUp    = types.Vector2{Y: -1}
+	DirectionRight = types.Vector2{X: +1}
+	DirectionDown  = types.Vector2{Y: +1}
 )
 
 type Slug struct {
-	positions        []Vector2
+	positions        []types.Vector2
 	headSprite       *ebiten.Image
 	bodySprite       *ebiten.Image
 	tailSprite       *ebiten.Image
 	jumpBy           int
-	currentDirection Vector2
-	nextDirection    Vector2
+	currentDirection types.Vector2
+	nextDirection    types.Vector2
 	moveTimer        *lib.Timer
 	gridColumns      int
 	gridRows         int
@@ -69,29 +71,29 @@ func (s *Slug) move() {
 	s.setPosition(s.positions[0].Add(delta))
 }
 
-func (s *Slug) setPosition(position Vector2) {
+func (s *Slug) setPosition(position types.Vector2) {
 	for i := len(s.positions) - 1; i > 0; i-- {
 		s.positions[i] = s.positions[i-1]
 	}
 	s.positions[0] = position
 }
 
-func (s *Slug) wrap(position Vector2) Vector2 {
+func (s *Slug) wrap(position types.Vector2) types.Vector2 {
 	switch {
 	case position.X < 0:
-		return Vector2{X: s.gridColumns - 1, Y: position.Y}
+		return types.Vector2{X: s.gridColumns - 1, Y: position.Y}
 	case position.X >= s.gridColumns:
-		return Vector2{X: 0, Y: position.Y}
+		return types.Vector2{X: 0, Y: position.Y}
 	case position.Y < 0:
-		return Vector2{X: position.X, Y: s.gridRows - 1}
+		return types.Vector2{X: position.X, Y: s.gridRows - 1}
 	case position.Y >= s.gridRows:
-		return Vector2{X: position.X, Y: 0}
+		return types.Vector2{X: position.X, Y: 0}
 	}
 
 	return position
 }
 
-func (s *Slug) Position() Vector2 {
+func (s *Slug) Position() types.Vector2 {
 	return s.positions[0]
 }
 
@@ -125,7 +127,7 @@ func (s *Slug) scale(tileSize int, bounds image.Rectangle, op *ebiten.DrawImageO
 	op.GeoM.Scale(sc, sc)
 }
 
-func (s *Slug) translate(offsetX int, tileSize int, offsetY int, op *ebiten.DrawImageOptions, position Vector2) {
+func (s *Slug) translate(offsetX int, tileSize int, offsetY int, op *ebiten.DrawImageOptions, position types.Vector2) {
 	x := offsetX + position.X*tileSize
 	y := offsetY + position.Y*tileSize
 	op.GeoM.Translate(
@@ -158,15 +160,15 @@ func (s *Slug) Grow() {
 	s.positions = append(s.positions, s.positions[len(s.positions)-1])
 }
 
-func (s *Slug) NextPosition() Vector2 {
+func (s *Slug) NextPosition() types.Vector2 {
 	delta := s.nextDirection.Multiply(s.jumpBy)
 	return s.wrap(s.Position().Add(delta))
 }
 
-func NewSlug(jumpBy int, startPosition Vector2, length, columns, rows int) *Slug {
-	positions := make([]Vector2, length)
+func NewSlug(jumpBy int, startPosition types.Vector2, moveFrequency time.Duration, length, columns, rows int) *Slug {
+	positions := make([]types.Vector2, length)
 	for i := range positions {
-		positions[i] = Vector2{startPosition.X + i, startPosition.Y}
+		positions[i] = types.Vector2{X: startPosition.X + i, Y: startPosition.Y}
 	}
 	return &Slug{
 		positions:        positions,
@@ -176,7 +178,7 @@ func NewSlug(jumpBy int, startPosition Vector2, length, columns, rows int) *Slug
 		jumpBy:           jumpBy,
 		currentDirection: DirectionLeft,
 		nextDirection:    DirectionLeft,
-		moveTimer:        lib.NewTimer(MoveFrequency, ebiten.TPS()),
+		moveTimer:        lib.NewTimer(moveFrequency, ebiten.TPS()),
 		gridColumns:      columns,
 		gridRows:         rows,
 	}

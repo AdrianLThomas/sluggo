@@ -1,21 +1,26 @@
-package game
+package objects
 
 import (
 	"sluggo/assets"
+	"sluggo/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type Food struct {
-	position Vector2
+type Rock struct {
+	position types.Vector2
 	sprite   *ebiten.Image
 }
 
-func (f *Food) Update() error {
+func (r *Rock) Position() types.Vector2 {
+	return r.position
+}
+
+func (f *Rock) Update() error {
 	return nil
 }
 
-func (f *Food) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
+func (f *Rock) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
 	bounds := f.sprite.Bounds()
 
 	op := &ebiten.DrawImageOptions{}
@@ -26,13 +31,9 @@ func (f *Food) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int
 	screen.DrawImage(f.sprite, op)
 }
 
-func (f *Food) Reset(position Vector2) {
-	f.position = position
-}
-
-func NewFood(position Vector2) *Food {
-	return &Food{
+func NewRock(position types.Vector2) *Rock {
+	return &Rock{
 		position: position,
-		sprite:   assets.FoodSprite,
+		sprite:   assets.RockSprite,
 	}
 }
