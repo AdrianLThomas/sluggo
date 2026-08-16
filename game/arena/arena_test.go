@@ -9,7 +9,9 @@ import (
 
 func TestArena_FoodNotPlacedOnRock(t *testing.T) {
 	a := NewArena(2, 2, func() {})
-	a.randGen = rand.New(rand.NewSource(0))
+
+	// seed of 3 is needed to reproduce overlapping items
+	a.randGen = rand.New(rand.NewSource(3))
 	a.rock[0] = objects.NewRock(types.Vector2{X: 0, Y: 0})
 	a.food[0].Reset(a.slug.Head())
 

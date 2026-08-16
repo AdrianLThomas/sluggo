@@ -151,6 +151,9 @@ func (a *Arena) nonCollidingPosition() types.Vector2 {
 		r = slices.ContainsFunc(a.rock, func(rock *objects.Rock) bool {
 			return emptyPosition == rock.Position()
 		})
+		if !s && !f && !r {
+			return emptyPosition
+		}
 		emptyPosition = a.randomGridPosition()
 	}
 
