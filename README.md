@@ -11,11 +11,10 @@ make setup-debian-deps
 For other platforms, see the [Ebitengine installation guide](https://ebitengine.org/en/documents/install.html).
 
 ## Development
-- `make run` - Run the game
-- `make build` - Build the desktop binary (`sluggo.bin`)
-- `make build-web` - Build the WebAssembly version (`web/game.wasm`)
-- `make test` - Run tests
-- `make test-ci` - Run tests headlessly using `xvfb-run` (for CI / headless Linux)
+`make run` - To run the game.
+
+See `makefile` for other build options.
+
 
 # Credits
 - [Textures (Ground)](https://kenney.nl/assets/retro-textures-fantasy)

@@ -1,13 +1,13 @@
 package assets
 
 import (
+	"bytes"
 	"embed"
 	"image"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 //go:embed *.png *.ttf
@@ -26,7 +26,7 @@ func mustLoadImage(name string) *ebiten.Image {
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	img, _, err := image.Decode(f)
 	if err != nil {
@@ -36,25 +36,20 @@ func mustLoadImage(name string) *ebiten.Image {
 	return ebiten.NewImageFromImage(img)
 }
 
-func mustLoadFont(name string) font.Face {
+func mustLoadFont(name string) text.Face {
 	f, err := assets.ReadFile(name)
 	if err != nil {
 		panic(err)
 	}
 
-	tt, err := opentype.Parse(f)
+	src, err := text.NewGoTextFaceSource(bytes.NewReader(f))
 	if err != nil {
 		panic(err)
 	}
 
-	face, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    48,
-		DPI:     72,
-		Hinting: font.HintingVertical,
-	})
-	if err != nil {
-		panic(err)
+	return &text.GoTextFace{
+		Source: src,
+		Size:   48,
 	}
-
-	return face
 }
+

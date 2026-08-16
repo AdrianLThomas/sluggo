@@ -6,5 +6,3 @@
     - Slug speed increases
     - Rock increases
 
-# Code health
-- Add linter

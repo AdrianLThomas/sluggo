@@ -5,8 +5,7 @@ import (
 	"sluggo/assets"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 type Position uint8
@@ -28,16 +27,22 @@ type OnscreenTextConfig struct {
 }
 
 func (t OnscreenText) Draw(screen *ebiten.Image) {
-	const margin = 50
-	strWidth := font.MeasureString(assets.Font, t.message)
-	x, y := 0, margin
+	const margin = 50.0
+	w, h := text.Measure(t.message, assets.Font, 0)
+	x, y := 0.0, margin
 	if t.config.Position&HorizontalCentre != 0 {
-		x = (t.config.ScreenSize.X - strWidth.Ceil()) / 2
+		x = (float64(t.config.ScreenSize.X) - w) / 2
 	}
 	if t.config.Position&VerticalCentre != 0 {
-		y = t.config.ScreenSize.Y / 2
+		y = (float64(t.config.ScreenSize.Y) - h) / 2
 	}
-	text.Draw(screen, t.message, assets.Font, x, y, t.config.Colour)
+
+	op := &text.DrawOptions{}
+	op.GeoM.Translate(x, y)
+	if t.config.Colour != nil {
+		op.ColorScale.ScaleWithColor(t.config.Colour)
+	}
+	text.Draw(screen, t.message, assets.Font, op)
 }
 
 func NewOnscreenText(message string, config OnscreenTextConfig) *OnscreenText {
@@ -46,3 +51,4 @@ func NewOnscreenText(message string, config OnscreenTextConfig) *OnscreenText {
 		config,
 	}
 }
+

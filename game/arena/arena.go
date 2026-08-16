@@ -81,7 +81,7 @@ func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY in
 
 func (a *Arena) rebuildBackground(tileSize int) {
 	if a.bgImage != nil {
-		a.bgImage.Dispose()
+		a.bgImage.Deallocate()
 	}
 
 	w := a.columns * tileSize
