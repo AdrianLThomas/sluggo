@@ -178,29 +178,74 @@ func TestSlug_NextPosition(t *testing.T) {
 	}
 }
 
-// func TestSlug_wrap(t *testing.T) {
-// 	tests := []struct {
-// 		name string // description of this test case
-// 		// Named input parameters for receiver constructor.
-// 		jumpBy        int
-// 		startPosition types.Vector2
-// 		length        int
-// 		columns       int
-// 		rows          int
-// 		// Named input parameters for target function.
-// 		position types.Vector2
-// 		want     types.Vector2
-// 	}{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			s := NewSlug(tt.jumpBy, tt.startPosition, tt.length, tt.columns, tt.rows)
-// 			got := s.wrap(tt.position)
-// 			// TODO: update the condition below to compare got with tt.want.
-// 			if true {
-// 				t.Errorf("wrap() = %v, want %v", got, tt.want)
-// 			}
-// 		})
-// 	}
-// }
+func TestSlug_wrap(t *testing.T) {
+	tests := []struct {
+		name     string
+		columns  int
+		rows     int
+		position types.Vector2
+		expected types.Vector2
+	}{
+		{
+			name:     "position inside grid remains unchanged",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: 5, Y: 5},
+			expected: types.Vector2{X: 5, Y: 5},
+		},
+		{
+			name:     "position at top-left corner remains unchanged",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: 0, Y: 0},
+			expected: types.Vector2{X: 0, Y: 0},
+		},
+		{
+			name:     "position at bottom-right corner remains unchanged",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: 9, Y: 9},
+			expected: types.Vector2{X: 9, Y: 9},
+		},
+		{
+			name:     "position off left edge (X < 0) wraps to right side",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: -1, Y: 5},
+			expected: types.Vector2{X: 9, Y: 5},
+		},
+		{
+			name:     "position off right edge (X >= columns) wraps to left side",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: 10, Y: 5},
+			expected: types.Vector2{X: 0, Y: 5},
+		},
+		{
+			name:     "position off top edge (Y < 0) wraps to bottom side",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: 5, Y: -1},
+			expected: types.Vector2{X: 5, Y: 9},
+		},
+		{
+			name:     "position off bottom edge (Y >= rows) wraps to top side",
+			columns:  10,
+			rows:     10,
+			position: types.Vector2{X: 5, Y: 10},
+			expected: types.Vector2{X: 5, Y: 0},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := newTestSlug(types.Vector2{X: 0, Y: 0})
+			s.gridColumns = tt.columns
+			s.gridRows = tt.rows
+
+			actual := s.wrap(tt.position)
+			if actual != tt.expected {
+				t.Errorf("wrap() = %v, want %v", actual, tt.expected)
+			}
+		})
+	}
+}
