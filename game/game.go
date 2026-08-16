@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 var gameState = StatePlaying
@@ -44,13 +45,13 @@ func (g *game) Draw(screen *ebiten.Image) {
 			Position:   lib.HorizontalCentre,
 			ScreenSize: screenSize,
 		}).Draw(screen)
-		lib.NewOnscreenText("Press space to play again", lib.OnscreenTextConfig{
+		lib.NewOnscreenText("Press space or tap to play again", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, G: 255},
 			Position:   lib.HorizontalCentre | lib.VerticalCentre,
 			ScreenSize: screenSize,
 		}).Draw(screen)
 
-		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		if ebiten.IsKeyPressed(ebiten.KeySpace) || len(inpututil.AppendJustPressedTouchIDs(nil)) > 0 {
 			g.arena = arena.NewArena(g.columns, g.rows, onGameOver)
 			gameState = StatePlaying
 		}

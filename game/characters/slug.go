@@ -17,6 +17,8 @@ var (
 	DirectionUp    = types.Vector2{Y: -1}
 	DirectionRight = types.Vector2{X: +1}
 	DirectionDown  = types.Vector2{Y: +1}
+
+	touchInput = lib.NewTouchInput()
 )
 
 type Slug struct {
@@ -37,7 +39,7 @@ func (s *Slug) WillEatSelf() bool {
 }
 
 func (s *Slug) Update() error {
-	s.checkKeyPresses()
+	s.checkUserInput()
 
 	s.moveTimer.Update()
 
@@ -52,7 +54,7 @@ func (s *Slug) Update() error {
 	return nil
 }
 
-func (s *Slug) checkKeyPresses() {
+func (s *Slug) checkUserInput() {
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyLeft) && s.currentDirection != DirectionRight:
 		s.nextDirection = DirectionLeft
@@ -62,6 +64,27 @@ func (s *Slug) checkKeyPresses() {
 		s.nextDirection = DirectionRight
 	case ebiten.IsKeyPressed(ebiten.KeyDown) && s.currentDirection != DirectionUp:
 		s.nextDirection = DirectionDown
+	}
+
+	if touchDir, ok := touchInput.Update(); ok {
+		switch touchDir {
+		case DirectionLeft:
+			if s.currentDirection != DirectionRight {
+				s.nextDirection = DirectionLeft
+			}
+		case DirectionUp:
+			if s.currentDirection != DirectionDown {
+				s.nextDirection = DirectionUp
+			}
+		case DirectionRight:
+			if s.currentDirection != DirectionLeft {
+				s.nextDirection = DirectionRight
+			}
+		case DirectionDown:
+			if s.currentDirection != DirectionUp {
+				s.nextDirection = DirectionDown
+			}
+		}
 	}
 }
 
