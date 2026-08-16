@@ -3,6 +3,7 @@ package arena
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 	"sluggo/assets"
 	"sluggo/game/characters"
 	"sluggo/game/objects"
@@ -21,6 +22,7 @@ type Arena struct {
 	bgTileSize int
 	food       []*objects.Food
 	rock       []*objects.Rock
+	randGen    *rand.Rand
 	onGameOver func()
 }
 
@@ -34,10 +36,10 @@ func (a *Arena) Update() error {
 			return err
 		}
 
-		isCollision := a.slug.Position() == food.Position()
+		isCollision := a.slug.Head() == food.Position()
 		if isCollision {
 			a.slug.Grow()
-			food.Reset(a.randomGridPosition())
+			food.Reset(a.nonCollidingPosition())
 		}
 	}
 
@@ -73,7 +75,7 @@ func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY in
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
 
 	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("X: %v,Y: %v", a.slug.Position().X, a.slug.Position().Y),
+		fmt.Sprintf("X: %v,Y: %v", a.slug.Head().X, a.slug.Head().Y),
 		0, screen.Bounds().Dy()-20)
 }
 
@@ -102,13 +104,13 @@ func (a *Arena) rebuildBackground(tileSize int) {
 }
 
 func NewArena(columns int, rows int, onGameOver func()) *Arena {
-	foodPos := RandomGridPosition(columns, rows)
-	rockPos := RandomGridPosition(columns, rows)
+	foodPos := newRandomGridPosition(columns, rows)
+	rockPos := newRandomGridPosition(columns, rows)
 	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
-		rockPos = RandomGridPosition(columns, rows)
+		rockPos = newRandomGridPosition(columns, rows)
 	}
 	const jumpBy = 1
-	const moveFrequency = time.Millisecond * 150
+	const moveFrequency = time.Millisecond * 100
 	const startingSlugLength = 1
 	slug := characters.NewSlug(
 		jumpBy,
@@ -128,14 +130,33 @@ func NewArena(columns int, rows int, onGameOver func()) *Arena {
 		rock: []*objects.Rock{
 			objects.NewRock(rockPos),
 		},
+		randGen:    rand.New(rand.NewSource(time.Now().UnixNano())),
 		onGameOver: onGameOver,
 	}
 }
 
 func (a *Arena) randomGridPosition() types.Vector2 {
-	return RandomGridPosition(a.columns, a.rows)
+	return types.Vector2{X: a.randGen.Intn(a.columns), Y: a.randGen.Intn(a.rows)}
 }
 
-func RandomGridPosition(columns, rows int) types.Vector2 {
-	return types.Vector2{rand.Intn(columns), rand.Intn(rows)}
+func (a *Arena) nonCollidingPosition() types.Vector2 {
+	emptyPosition := types.Vector2{}
+
+	s, f, r := true, true, true
+	for s || f || r {
+		s = slices.Contains(a.slug.Positions(), emptyPosition)
+		f = slices.ContainsFunc(a.food, func(food *objects.Food) bool {
+			return emptyPosition == food.Position()
+		})
+		r = slices.ContainsFunc(a.rock, func(rock *objects.Rock) bool {
+			return emptyPosition == rock.Position()
+		})
+		emptyPosition = a.randomGridPosition()
+	}
+
+	return emptyPosition
+}
+
+func newRandomGridPosition(columns, rows int) types.Vector2 {
+	return types.Vector2{X: rand.Intn(columns), Y: rand.Intn(rows)}
 }

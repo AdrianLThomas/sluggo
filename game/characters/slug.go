@@ -93,7 +93,7 @@ func (s *Slug) wrap(position types.Vector2) types.Vector2 {
 	return position
 }
 
-func (s *Slug) Position() types.Vector2 {
+func (s *Slug) Head() types.Vector2 {
 	return s.positions[0]
 }
 
@@ -162,7 +162,11 @@ func (s *Slug) Grow() {
 
 func (s *Slug) NextPosition() types.Vector2 {
 	delta := s.nextDirection.Multiply(s.jumpBy)
-	return s.wrap(s.Position().Add(delta))
+	return s.wrap(s.Head().Add(delta))
+}
+
+func (s *Slug) Positions() []types.Vector2 {
+	return s.positions
 }
 
 func NewSlug(jumpBy int, startPosition types.Vector2, moveFrequency time.Duration, length, columns, rows int) *Slug {
