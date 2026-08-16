@@ -29,9 +29,13 @@ jobs:
         uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
+          cache: true
+
+      - name: Install Linux dependencies
+        run: make setup-debian-deps
 
       - name: Run tests
-        run: make test
+        run: make test-ci
 
       - name: Build Web
         run: make build-web
