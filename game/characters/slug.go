@@ -24,7 +24,7 @@ type Slug struct {
 	headSprite       *ebiten.Image
 	bodySprite       *ebiten.Image
 	tailSprite       *ebiten.Image
-	jumpBy           int
+	speed            int
 	currentDirection types.Vector2
 	nextDirection    types.Vector2
 	moveTimer        *lib.Timer
@@ -67,7 +67,7 @@ func (s *Slug) checkKeyPresses() {
 
 func (s *Slug) move() {
 	s.currentDirection = s.nextDirection
-	delta := s.currentDirection.Multiply(s.jumpBy)
+	delta := s.currentDirection.Multiply(s.speed)
 	s.setPosition(s.positions[0].Add(delta))
 }
 
@@ -95,6 +95,10 @@ func (s *Slug) wrap(position types.Vector2) types.Vector2 {
 
 func (s *Slug) Head() types.Vector2 {
 	return s.positions[0]
+}
+
+func (s *Slug) Speed() int {
+	return s.speed
 }
 
 func (s *Slug) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
@@ -161,7 +165,7 @@ func (s *Slug) Grow() {
 }
 
 func (s *Slug) NextPosition() types.Vector2 {
-	delta := s.nextDirection.Multiply(s.jumpBy)
+	delta := s.nextDirection.Multiply(s.speed)
 	return s.wrap(s.Head().Add(delta))
 }
 
@@ -179,7 +183,7 @@ func NewSlug(jumpBy int, startPosition types.Vector2, moveFrequency time.Duratio
 		headSprite:       assets.SlugHeadSprite,
 		bodySprite:       assets.SlugBodySprite,
 		tailSprite:       assets.SlugTailSprite,
-		jumpBy:           jumpBy,
+		speed:            jumpBy,
 		currentDirection: DirectionLeft,
 		nextDirection:    DirectionLeft,
 		moveTimer:        lib.NewTimer(moveFrequency, ebiten.TPS()),
