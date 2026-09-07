@@ -15,15 +15,16 @@ import (
 )
 
 type Arena struct {
-	columns    int
-	rows       int
-	slug       *characters.Slug
-	bgImage    *ebiten.Image
-	bgTileSize int
-	food       []*objects.Food
-	rock       []*objects.Rock
-	randGen    *rand.Rand
-	onGameOver func()
+	columns        int
+	rows           int
+	slug           *characters.Slug
+	bgImage        *ebiten.Image
+	bgTileSize     int
+	food           []*objects.Food
+	rock           []*objects.Rock
+	randGen        *rand.Rand
+	onGameOver     func()
+	incrementScore func(int)
 }
 
 func (a *Arena) Update() error {
@@ -39,6 +40,8 @@ func (a *Arena) Update() error {
 		isCollision := a.slug.Head() == food.Position()
 		if isCollision {
 			a.slug.Grow()
+
+			a.incrementScore(a.slug.Speed())
 			food.Reset(a.nonCollidingPosition())
 		}
 	}
@@ -103,7 +106,7 @@ func (a *Arena) rebuildBackground(tileSize int) {
 	a.bgTileSize = tileSize
 }
 
-func NewArena(columns int, rows int, onGameOver func()) *Arena {
+func NewArena(columns int, rows int, onGameOver func(), incrementScore func(int)) *Arena {
 	foodPos := newRandomGridPosition(columns, rows)
 	rockPos := newRandomGridPosition(columns, rows)
 	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
@@ -130,8 +133,9 @@ func NewArena(columns int, rows int, onGameOver func()) *Arena {
 		rock: []*objects.Rock{
 			objects.NewRock(rockPos),
 		},
-		randGen:    rand.New(rand.NewSource(time.Now().UnixNano())),
-		onGameOver: onGameOver,
+		randGen:        rand.New(rand.NewSource(time.Now().UnixNano())),
+		onGameOver:     onGameOver,
+		incrementScore: incrementScore,
 	}
 }
 

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"image/color"
 	"sluggo/game/arena"
 	"sluggo/lib"
@@ -16,6 +17,7 @@ type game struct {
 	columns int
 	rows    int
 	arena   *arena.Arena
+	score   int
 }
 
 func (g *game) Update() error {
@@ -36,9 +38,10 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	ebitenutil.DebugPrint(screen, "Sluggo!")
 
+	bounds := screen.Bounds()
+	screenSize := types.Vector2{X: bounds.Dx(), Y: bounds.Dy()}
+
 	if gameState == StateGameOver {
-		bounds := screen.Bounds()
-		screenSize := types.Vector2{X: bounds.Dx(), Y: bounds.Dy()}
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, R: 255},
 			Position:   lib.HorizontalCentre,
@@ -51,10 +54,17 @@ func (g *game) Draw(screen *ebiten.Image) {
 		}).Draw(screen)
 
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			g.arena = arena.NewArena(g.columns, g.rows, onGameOver)
+			g.arena = arena.NewArena(g.columns, g.rows, onGameOver, g.incrementScore)
+			g.score = 0
 			gameState = StatePlaying
 		}
 	}
+
+	lib.NewOnscreenText(fmt.Sprintf("Score: %d", g.score), lib.OnscreenTextConfig{
+		Colour:     color.RGBA{A: 255, R: 255, G: 255},
+		Position:   lib.HorizontalCentre | lib.VerticalBottom,
+		ScreenSize: screenSize,
+	}).Draw(screen)
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -65,10 +75,15 @@ func onGameOver() {
 	gameState = StateGameOver
 }
 
+func (g *game) incrementScore(multiplier int) {
+	g.score = g.score + (1 * multiplier)
+}
+
 func NewGame(columns, rows int) ebiten.Game {
-	return &game{
+	g := &game{
 		columns: columns,
 		rows:    rows,
-		arena:   arena.NewArena(columns, rows, onGameOver),
 	}
+	g.arena = arena.NewArena(columns, rows, onGameOver, g.incrementScore)
+	return g
 }

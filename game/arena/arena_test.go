@@ -8,7 +8,7 @@ import (
 )
 
 func TestArena_FoodNotPlacedOnRock(t *testing.T) {
-	a := NewArena(2, 2, func() {})
+	a := NewArena(2, 2, func() {}, func() {})
 
 	// seed of 3 is needed to reproduce overlapping items
 	a.randGen = rand.New(rand.NewSource(3))
