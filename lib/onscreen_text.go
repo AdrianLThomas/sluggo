@@ -11,13 +11,23 @@ import (
 type Position uint8
 
 const (
-	None              Position = 0
-	HorizontalLeft    Position = 1 << iota
+	None           Position = 0
+	HorizontalLeft Position = 1 << iota
 	HorizontalCentre
 	HorizontalRight
 	VerticalTop
 	VerticalCentre
 	VerticalBottom
+)
+
+type Size float64
+
+const (
+	SizeExtraSmall Size = 0.5
+	SizeSmall      Size = 1
+	SizeMedium     Size = 1.2
+	SizeLarge      Size = 1.4
+	SizeExtraLarge Size = 1.6
 )
 
 type OnscreenText struct {
@@ -28,11 +38,14 @@ type OnscreenTextConfig struct {
 	Colour     color.Color
 	Position   Position
 	ScreenSize Vector2[int]
+	Size       Size
 }
 
 func (t OnscreenText) Draw(screen *ebiten.Image) {
 	const margin = 50.0
+	scale := float64(t.config.Size)
 	w, h := text.Measure(t.message, assets.Font, 0)
+	w, h = w*scale, h*scale
 	x, y := 0.0, margin
 	switch {
 	case t.config.Position&HorizontalLeft != 0:
@@ -53,6 +66,7 @@ func (t OnscreenText) Draw(screen *ebiten.Image) {
 	}
 
 	op := &text.DrawOptions{}
+	op.GeoM.Scale(scale, scale)
 	op.GeoM.Translate(x, y)
 	if t.config.Colour != nil {
 		op.ColorScale.ScaleWithColor(t.config.Colour)
@@ -66,4 +80,3 @@ func NewOnscreenText(message string, config OnscreenTextConfig) *OnscreenText {
 		config,
 	}
 }
-

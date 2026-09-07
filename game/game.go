@@ -45,11 +45,13 @@ func (g *game) Draw(screen *ebiten.Image) {
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, R: 255},
 			Position:   lib.HorizontalCentre,
+			Size:       lib.SizeLarge,
 			ScreenSize: screenSize,
 		}).Draw(screen)
 		lib.NewOnscreenText("Press space to play again", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, G: 255},
 			Position:   lib.HorizontalCentre | lib.VerticalCentre,
+			Size:       lib.SizeSmall,
 			ScreenSize: screenSize,
 		}).Draw(screen)
 
@@ -63,6 +65,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 	lib.NewOnscreenText(fmt.Sprintf("Score: %d", g.score), lib.OnscreenTextConfig{
 		Colour:     color.RGBA{A: 255, R: 255, G: 255},
 		Position:   lib.HorizontalCentre | lib.VerticalBottom,
+		Size:       lib.SizeExtraSmall,
 		ScreenSize: screenSize,
 	}).Draw(screen)
 }
