@@ -11,9 +11,13 @@ import (
 type Position uint8
 
 const (
-	None             Position = 0
-	HorizontalCentre Position = 1 << iota
+	None              Position = 0
+	HorizontalLeft    Position = 1 << iota
+	HorizontalCentre
+	HorizontalRight
+	VerticalTop
 	VerticalCentre
+	VerticalBottom
 )
 
 type OnscreenText struct {
@@ -30,11 +34,22 @@ func (t OnscreenText) Draw(screen *ebiten.Image) {
 	const margin = 50.0
 	w, h := text.Measure(t.message, assets.Font, 0)
 	x, y := 0.0, margin
-	if t.config.Position&HorizontalCentre != 0 {
+	switch {
+	case t.config.Position&HorizontalLeft != 0:
+		x = margin
+	case t.config.Position&HorizontalCentre != 0:
 		x = (float64(t.config.ScreenSize.X) - w) / 2
+	case t.config.Position&HorizontalRight != 0:
+		x = float64(t.config.ScreenSize.X) - w - margin
 	}
-	if t.config.Position&VerticalCentre != 0 {
+
+	switch {
+	case t.config.Position&VerticalTop != 0:
+		y = margin
+	case t.config.Position&VerticalCentre != 0:
 		y = (float64(t.config.ScreenSize.Y) - h) / 2
+	case t.config.Position&VerticalBottom != 0:
+		y = float64(t.config.ScreenSize.Y) - h - margin
 	}
 
 	op := &text.DrawOptions{}
