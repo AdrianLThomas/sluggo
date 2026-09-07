@@ -8,7 +8,6 @@ import (
 	"sluggo/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 var gameState = StatePlaying
@@ -35,8 +34,6 @@ func (g *game) Draw(screen *ebiten.Image) {
 	offsetY := (height - (g.rows * tileSize)) / 2
 
 	g.arena.Draw(screen, tileSize, offsetX, offsetY)
-
-	ebitenutil.DebugPrint(screen, "Sluggo!")
 
 	bounds := screen.Bounds()
 	screenSize := types.Vector2{X: bounds.Dx(), Y: bounds.Dy()}
