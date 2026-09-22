@@ -3,12 +3,16 @@ package game
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"sluggo/game/arena"
 	"sluggo/lib"
 	"sluggo/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
+
+// internalTileSize smaller is more pixelated
+const internalTileSize = 12
 
 var gameState = StatePlaying
 
@@ -17,6 +21,7 @@ type game struct {
 	rows    int
 	arena   *arena.Arena
 	score   int
+	buffer  *ebiten.Image
 }
 
 func (g *game) Update() error {
@@ -29,14 +34,22 @@ func (g *game) Update() error {
 
 func (g *game) Draw(screen *ebiten.Image) {
 	width, height := screen.Bounds().Dx(), screen.Bounds().Dy()
-	tileSize := min(width/g.columns, height/g.rows)
-	offsetX := (width - (g.columns * tileSize)) / 2
-	offsetY := (height - (g.rows * tileSize)) / 2
 
-	g.arena.Draw(screen, tileSize, offsetX, offsetY)
+	internalSize := types.Vector2{X: g.buffer.Bounds().Dx(), Y: g.buffer.Bounds().Dy()}
 
-	bounds := screen.Bounds()
-	screenSize := types.Vector2{X: bounds.Dx(), Y: bounds.Dy()}
+	scale := math.Min(float64(width)/float64(internalSize.X), float64(height)/float64(internalSize.Y))
+	op := &ebiten.DrawImageOptions{}
+	op.Filter = ebiten.FilterPixelated
+	op.GeoM.Scale(scale, scale)
+	op.GeoM.Translate(
+		(float64(width)-float64(internalSize.X)*scale)/2,
+		(float64(height)-float64(internalSize.Y)*scale)/2,
+	)
+
+	g.arena.Draw(g.buffer, internalTileSize, 0, 0)
+	screen.DrawImage(g.buffer, op)
+
+	screenSize := types.Vector2{X: width, Y: height}
 
 	if gameState == StateGameOver {
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
@@ -83,6 +96,7 @@ func NewGame(columns, rows int) ebiten.Game {
 	g := &game{
 		columns: columns,
 		rows:    rows,
+		buffer:  ebiten.NewImage(columns*internalTileSize, rows*internalTileSize),
 	}
 	g.arena = arena.NewArena(columns, rows, onGameOver, g.incrementScore)
 	return g
