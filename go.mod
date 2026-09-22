@@ -1,18 +1,17 @@
 module sluggo
 
-go 1.26
+go 1.26.0
 
-require github.com/hajimehoshi/ebiten/v2 v2.9.9
+require github.com/hajimehoshi/ebiten/v2 v2.10.3
 
 require (
-	github.com/ebitengine/gomobile v0.0.0-20250923094054-ea854a63cce1 // indirect
+	github.com/ebitengine/gomobile v0.0.0-20260820040257-d11f821a26a6 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
-	github.com/ebitengine/purego v0.9.0 // indirect
-	github.com/go-text/typesetting v0.3.0 // indirect
-	github.com/jezek/xgb v1.1.1 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/image v0.31.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	github.com/ebitengine/purego v0.11.1 // indirect
+	github.com/go-text/typesetting v0.3.5 // indirect
+	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
+	golang.org/x/image v0.46.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 )
