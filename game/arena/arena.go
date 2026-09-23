@@ -1,7 +1,6 @@
 package arena
 
 import (
-	"fmt"
 	"math/rand"
 	"slices"
 	"sluggo/assets"
@@ -11,7 +10,6 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type Arena struct {
@@ -76,10 +74,6 @@ func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY in
 		rock.Draw(screen, tileSize, offsetX, offsetY)
 	}
 	a.slug.Draw(screen, tileSize, offsetX, offsetY)
-
-	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("X: %v,Y: %v", a.slug.Head().X, a.slug.Head().Y),
-		0, screen.Bounds().Dy()-20)
 }
 
 func (a *Arena) rebuildBackground(tileSize int) {

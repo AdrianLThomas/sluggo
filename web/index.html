@@ -5,41 +5,330 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sluggo!</title>
     <style>
+        :root {
+            color-scheme: dark;
+            --control-size: clamp(3.25rem, 12vw, 4rem);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+
         body {
             background-color: #111827;
             color: #f3f4f6;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
+            min-height: 100dvh;
+            overflow: auto;
+            padding: 1rem;
         }
+
+        .game-page {
+            align-items: center;
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: flex-start;
+            margin: 0 auto;
+            max-width: 1024px;
+        }
+
         h1 {
-            margin-bottom: 1rem;
-            font-size: 2rem;
+            flex: 0 0 auto;
+            font-size: clamp(1.5rem, 5vw, 2rem);
             color: #10b981;
             text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
         }
-        iframe {
-            width: 1024px;
-            height: 768px;
-            max-width: 100vw;
-            max-height: 80vh;
+
+        .game-frame {
+            aspect-ratio: 4 / 3;
             border: none;
             border-radius: 8px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            display: block;
+            height: auto;
+            max-width: 100%;
+            width: min(1024px, 100%, calc(133.333dvh - 20rem));
+        }
+
+        .controls {
+            align-self: center;
+            background-color: rgba(17, 24, 39, 0.94);
+            border: 1px solid #374151;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+            display: grid;
+            gap: 0.5rem;
+            grid-template-columns: repeat(3, var(--control-size));
+            grid-template-rows: repeat(3, var(--control-size));
+            padding: 0.4rem;
+            position: static;
+            touch-action: none;
+            user-select: none;
+            width: max-content;
+            -webkit-user-select: none;
+        }
+
+        .control {
+            align-items: center;
+            background-color: #1f2937;
+            border: 1px solid #4b5563;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.35);
+            color: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            height: var(--control-size);
+            justify-content: center;
+            touch-action: none;
+            transition: background-color 80ms ease, border-color 80ms ease, transform 80ms ease;
+            width: var(--control-size);
+        }
+
+        .control:hover {
+            background-color: #374151;
+            border-color: #10b981;
+        }
+
+        .control:focus-visible {
+            border-color: #34d399;
+            outline: 3px solid rgba(52, 211, 153, 0.45);
+            outline-offset: 3px;
+        }
+
+        .control.is-active,
+        .control:active {
+            background-color: #047857;
+            border-color: #34d399;
+            transform: scale(0.94);
+        }
+
+        .control-up {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .control-left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .control-down {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .control-right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .control-space {
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-weight: 700;
+            grid-column: 1 / -1;
+            letter-spacing: 0.08em;
+            width: 100%;
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .game-page {
+                flex-direction: row;
+                gap: 0.5rem;
+                max-width: none;
+            }
+
+            .game-frame {
+                width: min(calc(100vw - 13rem), calc(133.333dvh - 1.5rem));
+            }
+
+            h1 {
+                display: none;
+            }
+
+            .controls {
+                --control-size: clamp(2.75rem, 14vh, 3.5rem);
+                align-self: flex-end;
+            }
+        }
+
+        @media (orientation: portrait) {
+            body {
+                display: block;
+                min-height: 0;
+                overflow: visible;
+                padding: 0;
+            }
+
+            .game-page {
+                flex: none;
+                gap: 0.5rem;
+                padding: 0;
+                width: 100%;
+            }
+
+            .game-frame {
+                width: 100%;
+            }
+
+            .controls {
+                box-shadow: none;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Sluggo!</h1>
-    <iframe src="main.html" width="1024" height="768" allow="autoplay"></iframe>
+    <main class="game-page">
+        <h1>Sluggo!</h1>
+        <iframe class="game-frame" id="game-frame" src="main.html" width="1024" height="768" allow="autoplay" title="Sluggo game"></iframe>
+
+        <nav class="controls" aria-label="Game controls">
+            <button class="control control-up" type="button" data-key="ArrowUp" aria-label="Move up">↑</button>
+            <button class="control control-left" type="button" data-key="ArrowLeft" aria-label="Move left">←</button>
+            <button class="control control-down" type="button" data-key="ArrowDown" aria-label="Move down">↓</button>
+            <button class="control control-right" type="button" data-key="ArrowRight" aria-label="Move right">→</button>
+            <button class="control control-space" type="button" data-key="Space" aria-label="Restart game">Space</button>
+        </nav>
+    </main>
+
+    <script>
+        const gameFrame = document.getElementById("game-frame");
+        const controls = Array.from(document.querySelectorAll(".control"));
+        const pressedKeys = new Map();
+        const minimumPressDuration = 100;
+        const keyCodes = {
+            ArrowUp: 38,
+            ArrowLeft: 37,
+            ArrowDown: 40,
+            ArrowRight: 39,
+            Space: 32,
+        };
+
+        function gameCanvas() {
+            return gameFrame.contentDocument?.querySelector("canvas") ?? null;
+        }
+
+        function dispatchKey(key, type) {
+            const canvas = gameCanvas();
+            if (!canvas || !gameFrame.contentWindow) {
+                return;
+            }
+
+            const event = new gameFrame.contentWindow.KeyboardEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                code: key,
+                key: key === "Space" ? " " : key,
+                keyCode: keyCodes[key],
+                repeat: false,
+                view: gameFrame.contentWindow,
+                which: keyCodes[key],
+            });
+
+            canvas.dispatchEvent(event);
+        }
+
+        function pressControl(control) {
+            const key = control.dataset.key;
+            if (pressedKeys.has(key) || !gameCanvas()) {
+                return;
+            }
+
+            const state = {
+                control,
+                pressedAt: performance.now(),
+                releaseTimer: null,
+            };
+            pressedKeys.set(key, state);
+            control.classList.add("is-active");
+            dispatchKey(key, "keydown");
+        }
+
+        function releaseControl(control, immediately = false) {
+            const key = control.dataset.key;
+            const state = pressedKeys.get(key);
+            if (!state) {
+                return;
+            }
+
+            const release = () => {
+                if (pressedKeys.get(key) !== state) {
+                    return;
+                }
+
+                clearTimeout(state.releaseTimer);
+                pressedKeys.delete(key);
+                control.classList.remove("is-active");
+                dispatchKey(key, "keyup");
+            };
+
+            if (immediately) {
+                release();
+                return;
+            }
+
+            const pressDuration = performance.now() - state.pressedAt;
+            const releaseDelay = Math.max(0, minimumPressDuration - pressDuration);
+            state.releaseTimer = window.setTimeout(release, releaseDelay);
+        }
+
+        controls.forEach((control) => {
+            control.addEventListener("pointerdown", (event) => {
+                if (!event.isPrimary) {
+                    return;
+                }
+
+                event.preventDefault();
+                control.setPointerCapture(event.pointerId);
+                pressControl(control);
+            });
+
+            control.addEventListener("pointerup", (event) => {
+                if (event.isPrimary) {
+                    releaseControl(control);
+                }
+            });
+
+            control.addEventListener("pointercancel", () => {
+                releaseControl(control, true);
+            });
+
+            // Assistive technology and keyboard activation generate a click
+            // without the corresponding pointer events.
+            control.addEventListener("click", (event) => {
+                if (event.detail === 0) {
+                    pressControl(control);
+                    releaseControl(control);
+                }
+            });
+        });
+
+        function releaseAllControls() {
+            pressedKeys.forEach((state) => releaseControl(state.control, true));
+        }
+
+        window.addEventListener("blur", () => {
+            requestAnimationFrame(() => {
+                if (!document.hasFocus() || document.activeElement !== gameFrame) {
+                    releaseAllControls();
+                }
+            });
+        });
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                releaseAllControls();
+            }
+        });
+    </script>
 </body>
 </html>

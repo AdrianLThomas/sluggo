@@ -1,4 +1,4 @@
-.PHONY: setup-debian-deps build build-web run test test-ci benchmark benchmark-lib clean lint
+.PHONY: setup-debian-deps build build-web serve-web run test test-ci benchmark benchmark-lib clean lint
 
 setup-debian-deps:
 	sudo apt-get update
@@ -8,12 +8,15 @@ lint:
 	golangci-lint run ./...
 
 build:
-	go build -o sluggo.bin .
+	CGO_ENABLED=0 go build -o sluggo.bin .
 
 build-web:
 	mkdir -p web
-	GOOS=js GOARCH=wasm go build -o web/game.wasm .
+	CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o web/game.wasm .
 	find $$(go env GOROOT) -name "wasm_exec.js" -exec cp {} web/ \;
+
+serve-web:
+	python3 -m http.server 8080 --directory ./web
 
 run:
 	go run .
