@@ -61,16 +61,20 @@
             background-color: rgba(17, 24, 39, 0.94);
             border: 1px solid #374151;
             border-radius: 1rem;
+            bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
             display: grid;
             gap: 0.5rem;
             grid-template-columns: repeat(3, var(--control-size));
             grid-template-rows: repeat(3, var(--control-size));
+            left: 50%;
             padding: 0.4rem;
-            position: static;
+            position: fixed;
             touch-action: none;
+            transform: translateX(-50%);
             user-select: none;
             width: max-content;
+            z-index: 10;
             -webkit-user-select: none;
         }
 
@@ -158,7 +162,9 @@
 
             .controls {
                 --control-size: clamp(2.75rem, 14vh, 3.5rem);
-                align-self: flex-end;
+                left: auto;
+                right: 0.5rem;
+                transform: none;
             }
         }
 
