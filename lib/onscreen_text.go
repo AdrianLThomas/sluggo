@@ -42,7 +42,7 @@ type OnscreenTextConfig struct {
 }
 
 func (t OnscreenText) Draw(screen *ebiten.Image) {
-	const margin = 50.0
+	const margin = 16.0
 	scale := float64(t.config.Size)
 	w, h := text.Measure(t.message, assets.Font, 0)
 	w, h = w*scale, h*scale

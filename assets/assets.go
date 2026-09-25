@@ -49,7 +49,7 @@ func mustLoadFont(name string) text.Face {
 
 	return &text.GoTextFace{
 		Source: src,
-		Size:   48,
+		Size:   20,
 	}
 }
 
