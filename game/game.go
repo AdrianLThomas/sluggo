@@ -55,7 +55,7 @@ func (g *game) anyInputPressed() bool {
 	}
 
 	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
-		len(inpututil.JustPressedTouchIDs()) > 0
+		len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
 }
 
 // restart deals the player a fresh arena and score.
