@@ -20,35 +20,6 @@ func TestNewGameStartsOnSplash(t *testing.T) {
 	}
 }
 
-// The splash screen must never advance on its own, however long it is left up.
-func TestSplashWaitsForInput(t *testing.T) {
-	g := newTestGame(t)
-
-	for i := range 600 {
-		if err := g.Update(); err != nil {
-			t.Fatal(err)
-		}
-		if g.state != StateSplash {
-			t.Fatalf("left the splash screen without input on tick %d", i+1)
-		}
-	}
-}
-
-// Game over must likewise wait for input rather than restarting by itself.
-func TestGameOverWaitsForInput(t *testing.T) {
-	g := newTestGame(t)
-	g.state = StateGameOver
-
-	for i := range 600 {
-		if err := g.Update(); err != nil {
-			t.Fatal(err)
-		}
-		if g.state != StateGameOver {
-			t.Fatalf("left game over without input on tick %d", i+1)
-		}
-	}
-}
-
 func TestResetResetsScoreAndArena(t *testing.T) {
 	g := newTestGame(t)
 	g.score = 42

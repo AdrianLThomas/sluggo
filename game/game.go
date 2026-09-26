@@ -15,7 +15,7 @@ import (
 // internalTileSize smaller is more pixelated
 const internalTileSize = 12
 
-// splashDimAlpha is how opaque the veil over the arena is while splashing.
+// splashDimAlpha is how opaque the veil over the arena is during splash
 const splashDimAlpha = 0.6
 
 type game struct {
@@ -149,7 +149,6 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
-// reset deals the player a fresh arena and score, and puts them back in play.
 func (g *game) reset() {
 	g.arena = arena.NewArena(g.columns, g.rows)
 	g.score = 0
@@ -168,9 +167,6 @@ func NewGame(columns, rows int) ebiten.Game {
 	return g
 }
 
-// newVeil builds the white pixel stretched over the whole screen to dim what
-// is already drawn. ebiten's Fill overwrites pixels rather than blending, so
-// the dimming has to happen through an ordinary draw.
 func newVeil() *ebiten.Image {
 	veil := ebiten.NewImage(1, 1)
 	veil.Fill(color.White)

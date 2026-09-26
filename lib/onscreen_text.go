@@ -39,8 +39,7 @@ type OnscreenTextConfig struct {
 	Position   Position
 	ScreenSize Vector2[int]
 	Size       Size
-	// Offset shifts the text from the position resolved by Position.
-	Offset Vector2[int]
+	Offset     Vector2[int]
 }
 
 func (t OnscreenText) Draw(screen *ebiten.Image) {
