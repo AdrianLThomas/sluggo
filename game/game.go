@@ -14,19 +14,28 @@ import (
 // internalTileSize smaller is more pixelated
 const internalTileSize = 12
 
-var gameState = StatePlaying
-
 type game struct {
 	columns int
 	rows    int
 	arena   *arena.Arena
 	score   int
+	state   GameState
 	buffer  *ebiten.Image
 }
 
 func (g *game) Update() error {
-	if gameState == StatePlaying {
-		return g.arena.Update()
+	if g.state != StatePlaying {
+		return nil
+	}
+
+	outcome, err := g.arena.Update()
+	if err != nil {
+		return err
+	}
+
+	g.score += outcome.ScoreGain
+	if outcome.GameOver {
+		g.state = StateGameOver
 	}
 
 	return nil
@@ -51,7 +60,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	screenSize := types.Vector2{X: width, Y: height}
 
-	if gameState == StateGameOver {
+	if g.state == StateGameOver {
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, R: 255},
 			Position:   lib.HorizontalCentre,
@@ -66,9 +75,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 		}).Draw(screen)
 
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			g.arena = arena.NewArena(g.columns, g.rows, onGameOver, g.incrementScore)
-			g.score = 0
-			gameState = StatePlaying
+			g.reset()
 		}
 	}
 
@@ -84,20 +91,19 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
-func onGameOver() {
-	gameState = StateGameOver
-}
-
-func (g *game) incrementScore(multiplier int) {
-	g.score = g.score + (1 * multiplier)
+func (g *game) reset() {
+	g.arena = arena.NewArena(g.columns, g.rows)
+	g.score = 0
+	g.state = StatePlaying
 }
 
 func NewGame(columns, rows int) ebiten.Game {
 	g := &game{
 		columns: columns,
 		rows:    rows,
+		state:   StatePlaying,
 		buffer:  ebiten.NewImage(columns*internalTileSize, rows*internalTileSize),
 	}
-	g.arena = arena.NewArena(columns, rows, onGameOver, g.incrementScore)
+	g.reset()
 	return g
 }

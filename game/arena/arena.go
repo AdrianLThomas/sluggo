@@ -12,50 +12,58 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type Arena struct {
-	columns        int
-	rows           int
-	slug           *characters.Slug
-	bgImage        *ebiten.Image
-	bgTileSize     int
-	food           []*objects.Food
-	rock           []*objects.Rock
-	randGen        *rand.Rand
-	onGameOver     func()
-	incrementScore func(int)
+type Outcome struct {
+	ScoreGain int
+	GameOver  bool
 }
 
-func (a *Arena) Update() error {
+type Arena struct {
+	columns    int
+	rows       int
+	slug       *characters.Slug
+	bgImage    *ebiten.Image
+	bgTileSize int
+	food       []*objects.Food
+	rock       []*objects.Rock
+	randGen    *rand.Rand
+}
+
+func (a *Arena) Update() (Outcome, error) {
+	var outcome Outcome
+
 	if err := a.slug.Update(); err != nil {
-		return err
+		return Outcome{}, err
 	}
 
 	for _, food := range a.food {
 		if err := food.Update(); err != nil {
-			return err
+			return Outcome{}, err
 		}
 
 		isCollision := a.slug.Head() == food.Position()
 		if isCollision {
 			a.slug.Grow()
 
-			a.incrementScore(a.slug.Speed())
+			outcome.ScoreGain += a.slug.Speed()
 			food.Reset(a.nonCollidingPosition())
 		}
 	}
 
 	for _, rock := range a.rock {
 		if err := rock.Update(); err != nil {
-			return err
-		}
-
-		isCollision := a.slug.NextPosition() == rock.Position()
-		if isCollision || a.slug.WillEatSelf() {
-			a.onGameOver()
+			return Outcome{}, err
 		}
 	}
 
-	return nil
+	outcome.GameOver = a.slug.WillEatSelf() || a.willHitRock()
+
+	return outcome, nil
+}
+
+func (a *Arena) willHitRock() bool {
+	return slices.ContainsFunc(a.rock, func(rock *objects.Rock) bool {
+		return a.slug.NextPosition() == rock.Position()
+	})
 }
 
 func (a *Arena) Draw(screen *ebiten.Image, tileSize int, offsetX int, offsetY int) {
@@ -100,7 +108,7 @@ func (a *Arena) rebuildBackground(tileSize int) {
 	a.bgTileSize = tileSize
 }
 
-func NewArena(columns int, rows int, onGameOver func(), incrementScore func(int)) *Arena {
+func NewArena(columns int, rows int) *Arena {
 	foodPos := newRandomGridPosition(columns, rows)
 	rockPos := newRandomGridPosition(columns, rows)
 	for foodPos.X == rockPos.X && foodPos.Y == rockPos.Y {
@@ -127,9 +135,7 @@ func NewArena(columns int, rows int, onGameOver func(), incrementScore func(int)
 		rock: []*objects.Rock{
 			objects.NewRock(rockPos),
 		},
-		randGen:        rand.New(rand.NewSource(time.Now().UnixNano())),
-		onGameOver:     onGameOver,
-		incrementScore: incrementScore,
+		randGen: rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 }
 
@@ -138,24 +144,29 @@ func (a *Arena) randomGridPosition() types.Vector2 {
 }
 
 func (a *Arena) nonCollidingPosition() types.Vector2 {
-	emptyPosition := types.Vector2{}
-
-	s, f, r := true, true, true
-	for s || f || r {
-		s = slices.Contains(a.slug.Positions(), emptyPosition)
-		f = slices.ContainsFunc(a.food, func(food *objects.Food) bool {
-			return emptyPosition == food.Position()
-		})
-		r = slices.ContainsFunc(a.rock, func(rock *objects.Rock) bool {
-			return emptyPosition == rock.Position()
-		})
-		if !s && !f && !r {
-			return emptyPosition
+	occupied := func(candidate types.Vector2) bool {
+		if slices.Contains(a.slug.Positions(), candidate) {
+			return true
 		}
-		emptyPosition = a.randomGridPosition()
+		for _, food := range a.food {
+			if candidate == food.Position() {
+				return true
+			}
+		}
+		for _, rock := range a.rock {
+			if candidate == rock.Position() {
+				return true
+			}
+		}
+		return false
 	}
 
-	return emptyPosition
+	candidate := a.randomGridPosition()
+	for occupied(candidate) {
+		candidate = a.randomGridPosition()
+	}
+
+	return candidate
 }
 
 func newRandomGridPosition(columns, rows int) types.Vector2 {
