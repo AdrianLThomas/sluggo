@@ -15,8 +15,15 @@ import (
 // internalTileSize smaller is more pixelated
 const internalTileSize = 12
 
-// splashDimAlpha is how opaque the veil over the arena is during splash
-const splashDimAlpha = 0.6
+const overlayDimAlpha = 0.6
+
+var (
+	foodGreen = color.RGBA{A: 255, R: 0x84, G: 0xc6, B: 0x69}
+	rockLight = color.RGBA{A: 255, R: 0xc0, G: 0xcb, B: 0xdc}
+	rockDark  = color.RGBA{A: 255, R: 0x8b, G: 0x9b, B: 0xb4}
+
+	alertRed = color.RGBA{A: 255, R: 0xff, G: 0x5a, B: 0x5a}
+)
 
 type game struct {
 	columns int
@@ -90,18 +97,8 @@ func (g *game) Draw(screen *ebiten.Image) {
 	}
 
 	if g.state == StateGameOver {
-		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
-			Colour:     color.RGBA{A: 255, R: 255},
-			Position:   lib.HorizontalCentre,
-			Size:       lib.SizeLarge,
-			ScreenSize: screenSize,
-		}).Draw(screen)
-		lib.NewOnscreenText("Press any key to play again", lib.OnscreenTextConfig{
-			Colour:     color.RGBA{A: 255, G: 255},
-			Position:   lib.HorizontalCentre | lib.VerticalCentre,
-			Size:       lib.SizeSmall,
-			ScreenSize: screenSize,
-		}).Draw(screen)
+		g.drawGameOver(screen, screenSize)
+		return
 	}
 
 	lib.NewOnscreenText(fmt.Sprintf("Score: %d", g.score), lib.OnscreenTextConfig{
@@ -112,16 +109,41 @@ func (g *game) Draw(screen *ebiten.Image) {
 	}).Draw(screen)
 }
 
+func (g *game) drawGameOver(screen *ebiten.Image, screenSize types.Vector2) {
+	g.drawVeil(screen, screenSize)
+
+	lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
+		Colour:     alertRed,
+		Position:   lib.HorizontalCentre | lib.VerticalCentre,
+		ScreenSize: screenSize,
+		Size:       lib.SizeExtraLarge,
+		Offset:     lib.Vector2[int]{Y: -60},
+	}).Draw(screen)
+
+	lib.NewOnscreenText(fmt.Sprintf("Score: %d", g.score), lib.OnscreenTextConfig{
+		Colour:     foodGreen,
+		Position:   lib.HorizontalCentre | lib.VerticalCentre,
+		ScreenSize: screenSize,
+		Size:       lib.SizeSmall,
+		Offset:     lib.Vector2[int]{Y: -10},
+	}).Draw(screen)
+
+	lib.NewOnscreenText("Press any key or tap to play again", lib.OnscreenTextConfig{
+		Colour:     rockDark,
+		Position:   lib.HorizontalCentre | lib.VerticalCentre,
+		ScreenSize: screenSize,
+		Size:       lib.SizeExtraSmall,
+		Offset:     lib.Vector2[int]{Y: 24},
+	}).Draw(screen)
+}
+
 // drawSplash renders the splash screen. The arena is still drawn underneath
 // it, dimmed by a veil, but the slug is never updated so it sits still.
 func (g *game) drawSplash(screen *ebiten.Image, screenSize types.Vector2) {
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(float64(screenSize.X), float64(screenSize.Y))
-	op.ColorScale.Scale(0, 0, 0, splashDimAlpha)
-	screen.DrawImage(g.veil, op)
+	g.drawVeil(screen, screenSize)
 
 	lib.NewOnscreenText("Sluggo!", lib.OnscreenTextConfig{
-		Colour:     color.RGBA{A: 255, R: 255, G: 255},
+		Colour:     foodGreen,
 		Position:   lib.HorizontalCentre | lib.VerticalCentre,
 		ScreenSize: screenSize,
 		Size:       lib.SizeExtraLarge,
@@ -129,7 +151,7 @@ func (g *game) drawSplash(screen *ebiten.Image, screenSize types.Vector2) {
 	}).Draw(screen)
 
 	lib.NewOnscreenText("Arrow keys to steer", lib.OnscreenTextConfig{
-		Colour:     color.RGBA{A: 255, R: 255, G: 255},
+		Colour:     rockLight,
 		Position:   lib.HorizontalCentre | lib.VerticalCentre,
 		ScreenSize: screenSize,
 		Size:       lib.SizeSmall,
@@ -137,12 +159,21 @@ func (g *game) drawSplash(screen *ebiten.Image, screenSize types.Vector2) {
 	}).Draw(screen)
 
 	lib.NewOnscreenText("Press any key or tap to start", lib.OnscreenTextConfig{
-		Colour:     color.RGBA{A: 160, R: 255, G: 255, B: 255},
+		Colour:     rockDark,
 		Position:   lib.HorizontalCentre | lib.VerticalCentre,
 		ScreenSize: screenSize,
 		Size:       lib.SizeExtraSmall,
 		Offset:     lib.Vector2[int]{Y: 24},
 	}).Draw(screen)
+}
+
+// drawVeil dims everything already drawn to the screen, so the overlay text on
+// top of it stands out. The arena keeps playing underneath either way.
+func (g *game) drawVeil(screen *ebiten.Image, screenSize types.Vector2) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(float64(screenSize.X), float64(screenSize.Y))
+	op.ColorScale.Scale(0, 0, 0, overlayDimAlpha)
+	screen.DrawImage(g.veil, op)
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
