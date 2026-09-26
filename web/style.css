@@ -37,6 +37,23 @@ h1 {
     text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
+.source-link {
+    bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    color: #9ca3af;
+    left: calc(0.5rem + env(safe-area-inset-left, 0px));
+    line-height: 0;
+    opacity: 0.55;
+    position: fixed;
+    transition: color 80ms ease, opacity 80ms ease;
+    z-index: 5;
+}
+
+.source-link:hover,
+.source-link:focus-visible {
+    color: #10b981;
+    opacity: 1;
+}
+
 .game-frame {
     aspect-ratio: 4 / 3;
     border: none;

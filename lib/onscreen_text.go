@@ -70,6 +70,7 @@ func (t OnscreenText) Draw(screen *ebiten.Image) {
 	y += float64(t.config.Offset.Y)
 
 	op := &text.DrawOptions{}
+	op.Filter = ebiten.FilterPixelated
 	op.GeoM.Scale(scale, scale)
 	op.GeoM.Translate(x, y)
 	if t.config.Colour != nil {
