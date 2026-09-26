@@ -39,6 +39,7 @@ type OnscreenTextConfig struct {
 	Position   Position
 	ScreenSize Vector2[int]
 	Size       Size
+	Offset     Vector2[int]
 }
 
 func (t OnscreenText) Draw(screen *ebiten.Image) {
@@ -64,6 +65,9 @@ func (t OnscreenText) Draw(screen *ebiten.Image) {
 	case t.config.Position&VerticalBottom != 0:
 		y = float64(t.config.ScreenSize.Y) - h - margin
 	}
+
+	x += float64(t.config.Offset.X)
+	y += float64(t.config.Offset.Y)
 
 	op := &text.DrawOptions{}
 	op.GeoM.Scale(scale, scale)
