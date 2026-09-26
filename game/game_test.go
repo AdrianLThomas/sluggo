@@ -13,10 +13,10 @@ func newTestGame(t *testing.T) *game {
 }
 
 func TestNewGameStartsOnSplash(t *testing.T) {
-	newTestGame(t)
+	g := newTestGame(t)
 
-	if gameState != StateSplash {
-		t.Errorf("expected a new game to start on %v, got %v", StateSplash, gameState)
+	if g.state != StateSplash {
+		t.Errorf("expected a new game to start on %v, got %v", StateSplash, g.state)
 	}
 }
 
@@ -28,7 +28,7 @@ func TestSplashWaitsForInput(t *testing.T) {
 		if err := g.Update(); err != nil {
 			t.Fatal(err)
 		}
-		if gameState != StateSplash {
+		if g.state != StateSplash {
 			t.Fatalf("left the splash screen without input on tick %d", i+1)
 		}
 	}
@@ -37,33 +37,33 @@ func TestSplashWaitsForInput(t *testing.T) {
 // Game over must likewise wait for input rather than restarting by itself.
 func TestGameOverWaitsForInput(t *testing.T) {
 	g := newTestGame(t)
-	gameState = StateGameOver
+	g.state = StateGameOver
 
 	for i := range 600 {
 		if err := g.Update(); err != nil {
 			t.Fatal(err)
 		}
-		if gameState != StateGameOver {
+		if g.state != StateGameOver {
 			t.Fatalf("left game over without input on tick %d", i+1)
 		}
 	}
 }
 
-func TestRestartResetsScoreAndArena(t *testing.T) {
+func TestResetResetsScoreAndArena(t *testing.T) {
 	g := newTestGame(t)
 	g.score = 42
-	gameState = StateGameOver
+	g.state = StateGameOver
 
 	before := g.arena
-	g.restart()
+	g.reset()
 
-	if gameState != StatePlaying {
-		t.Errorf("expected restart to start playing, got %v", gameState)
+	if g.state != StatePlaying {
+		t.Errorf("expected reset to start playing, got %v", g.state)
 	}
 	if g.score != 0 {
-		t.Errorf("expected restart to zero the score, got %d", g.score)
+		t.Errorf("expected reset to zero the score, got %d", g.score)
 	}
 	if g.arena == before {
-		t.Error("expected restart to build a fresh arena")
+		t.Error("expected reset to build a fresh arena")
 	}
 }

@@ -18,29 +18,36 @@ const internalTileSize = 12
 // splashDimAlpha is how opaque the veil over the arena is while splashing.
 const splashDimAlpha = 0.6
 
-var gameState = StatePlaying
-
 type game struct {
 	columns int
 	rows    int
 	arena   *arena.Arena
 	score   int
+	state   GameState
 	buffer  *ebiten.Image
 	veil    *ebiten.Image
 }
 
 func (g *game) Update() error {
-	switch gameState {
+	switch g.state {
 	case StateSplash:
 		if g.anyInputPressed() {
-			gameState = StatePlaying
+			g.state = StatePlaying
 		}
 	case StateGameOver:
 		if g.anyInputPressed() {
-			g.restart()
+			g.reset()
 		}
 	case StatePlaying:
-		return g.arena.Update()
+		outcome, err := g.arena.Update()
+		if err != nil {
+			return err
+		}
+
+		g.score += outcome.ScoreGain
+		if outcome.GameOver {
+			g.state = StateGameOver
+		}
 	}
 
 	return nil
@@ -56,13 +63,6 @@ func (g *game) anyInputPressed() bool {
 
 	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 		len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
-}
-
-// restart deals the player a fresh arena and score.
-func (g *game) restart() {
-	g.arena = arena.NewArena(g.columns, g.rows, onGameOver, g.incrementScore)
-	g.score = 0
-	gameState = StatePlaying
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
@@ -84,12 +84,12 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	screenSize := types.Vector2{X: width, Y: height}
 
-	if gameState == StateSplash {
+	if g.state == StateSplash {
 		g.drawSplash(screen, screenSize)
 		return
 	}
 
-	if gameState == StateGameOver {
+	if g.state == StateGameOver {
 		lib.NewOnscreenText("GAME OVER", lib.OnscreenTextConfig{
 			Colour:     color.RGBA{A: 255, R: 255},
 			Position:   lib.HorizontalCentre,
@@ -149,23 +149,22 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
-func onGameOver() {
-	gameState = StateGameOver
-}
-
-func (g *game) incrementScore(multiplier int) {
-	g.score = g.score + (1 * multiplier)
+// reset deals the player a fresh arena and score, and puts them back in play.
+func (g *game) reset() {
+	g.arena = arena.NewArena(g.columns, g.rows)
+	g.score = 0
+	g.state = StatePlaying
 }
 
 func NewGame(columns, rows int) ebiten.Game {
 	g := &game{
 		columns: columns,
 		rows:    rows,
+		state:   StateSplash,
 		buffer:  ebiten.NewImage(columns*internalTileSize, rows*internalTileSize),
 		veil:    newVeil(),
 	}
-	g.arena = arena.NewArena(columns, rows, onGameOver, g.incrementScore)
-	gameState = StateSplash
+	g.arena = arena.NewArena(columns, rows)
 	return g
 }
 

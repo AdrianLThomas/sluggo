@@ -1,7 +1,4 @@
 # Game
-- features
-  - touch controls for mobile
-
 - Add different game modes?
   - Overflow arena
   - Difficulties
@@ -15,5 +12,4 @@
 
 
 # Refactoring
-- Replace callbacks with event system
 - Get WASM size down - maybe explore TinyGo
