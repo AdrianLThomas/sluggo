@@ -12,7 +12,7 @@ function sendKey(key, type) {
         bubbles: true,
         cancelable: true,
         code: key,
-        key: key === "Space" ? " " : key,
+        key,
     }));
 }
 
