@@ -16,7 +16,7 @@ build-web:
 	find $$(go env GOROOT) -name "wasm_exec.js" -exec cp {} web/ \;
 
 serve-web:
-	python3 -m http.server 9090 --directory ./web
+	python3 web/devserver.py 9090
 
 run:
 	go run .
