@@ -13,3 +13,4 @@
 
 # Refactoring
 - Get WASM size down - maybe explore TinyGo
+- Improve maintainability of the web files

@@ -1,6 +1,8 @@
 # Sluggo!
 Snake but for Slugs. Written in Go.
 
+[Play it in your browser](https://www.adrian-thomas.com/sluggo/)
+
 ## Dependencies
 Ebitengine requires Linux system dependencies to build and test. On Debian/Ubuntu-based distributions, you can install them with:
 
