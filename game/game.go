@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"sluggo/assets"
 	"sluggo/game/arena"
 	"sluggo/lib"
 	"sluggo/types"
@@ -33,10 +34,13 @@ func (g *game) Update() error {
 	case StateSplash:
 		if g.anyInputPressed() {
 			g.state = StatePlaying
+			assets.PlaySFX("sfx_start.ogg")
+			assets.PlayMusic()
 		}
 	case StateGameOver:
 		if g.anyInputPressed() {
 			g.reset()
+			assets.PlaySFX("sfx_start.ogg")
 		}
 	case StatePlaying:
 		outcome, err := g.arena.Update()
@@ -47,6 +51,7 @@ func (g *game) Update() error {
 		g.score += outcome.ScoreGain
 		if outcome.GameOver {
 			g.state = StateGameOver
+			assets.PlaySFX("sfx_over.ogg")
 		}
 	}
 

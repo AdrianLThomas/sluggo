@@ -10,7 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-//go:embed *.png *.ttf
+//go:embed *.png *.ttf *.ogg
 var assets embed.FS
 
 var BackgroundSprite = mustLoadImage("background_tile.png")
@@ -52,4 +52,3 @@ func mustLoadFont(name string) text.Face {
 		Size:   20,
 	}
 }
-

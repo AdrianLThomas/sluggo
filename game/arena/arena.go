@@ -26,6 +26,7 @@ type Arena struct {
 	food       []*objects.Food
 	rock       []*objects.Rock
 	randGen    *rand.Rand
+	lastHead   types.Vector2
 }
 
 func (a *Arena) Update() (Outcome, error) {
@@ -43,10 +44,16 @@ func (a *Arena) Update() (Outcome, error) {
 		isCollision := a.slug.Head() == food.Position()
 		if isCollision {
 			a.slug.Grow()
+			assets.PlaySFX("sfx_eat.ogg")
 
 			outcome.ScoreGain += a.slug.Speed()
 			food.Reset(a.nonCollidingPosition())
 		}
+	}
+
+	if head := a.slug.Head(); head != a.lastHead {
+		a.lastHead = head
+		assets.PlaySFX("sfx_move.ogg")
 	}
 
 	for _, rock := range a.rock {
@@ -126,9 +133,10 @@ func NewArena(columns int, rows int) *Arena {
 		rows)
 
 	return &Arena{
-		columns: columns,
-		rows:    rows,
-		slug:    slug,
+		columns:  columns,
+		rows:     rows,
+		slug:     slug,
+		lastHead: slug.Head(),
 		food: []*objects.Food{
 			objects.NewFood(foodPos),
 		},
